@@ -19,7 +19,12 @@ void Board::init(){
 // called once per iteration of the game loop
 void Board::update(){
     // TODO: gravity
-    
+    // if (++gravity_counter == gravity){
+    //     gravity_counter = 0;
+    //     cur_piece.moveDown();
+    // }
+
+    clearRows();
 
 }
 
@@ -27,10 +32,29 @@ void Board::handleInput(sf::Event e){
     if (e.type != sf::Event::KeyPressed && e.type != sf::Event::KeyReleased) return;
     
     if(e.type == sf::Event::KeyPressed){
-        if (e.key.code == sf::Keyboard::Left) cur_piece.moveLeft();
-        if (e.key.code == sf::Keyboard::Right) cur_piece.moveRight();
-        if (e.key.code == sf::Keyboard::Z) cur_piece.rotateCCW();
-        if (e.key.code == sf::Keyboard::X) cur_piece.rotateCW();
+        switch(e.key.code){
+            case sf::Keyboard::Left:
+                cur_piece.moveLeft();
+                break;
+            case sf::Keyboard::Right:
+                cur_piece.moveRight();
+                break;
+            case sf::Keyboard::Down:
+                cur_piece.moveDown();
+                break;
+            case sf::Keyboard::Space:
+                break;
+            case sf::Keyboard::Z:
+                cur_piece.rotateCCW();
+                break;
+            case sf::Keyboard::X:
+                cur_piece.rotateCW();
+                break;
+            default:
+                break;
+        }
+    } else {
+
     }
 }
 

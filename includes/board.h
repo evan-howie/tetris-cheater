@@ -25,6 +25,14 @@ private:
 
     void setMino(unsigned int x, unsigned int y, char mino);
 
+    //input handling
+    const int DAS = 87; //ms
+    const int ARR = 40; //ms
+    const int SDF = -1; // insta drop
+
+    const int gravity = 60; // frames per line
+    int gravity_counter = 0;
+
 public:
     const unsigned int tile_size;
     static const unsigned char empty_cell = 0x80;

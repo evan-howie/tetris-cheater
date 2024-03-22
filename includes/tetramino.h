@@ -25,10 +25,12 @@ public:
 
     void moveLeft();
     void moveRight();
+    void moveDown();
     void rotateCW();
     void rotateCCW();
     std::pair<int, int> getOffset(std::vector<std::vector<unsigned char>>& test_shape, char rotation, char old_rotation, int test);
 
+    bool isMino(std::vector<std::vector<unsigned char>>& test_shape, int x, int y);
     bool isMino(int x, int y);
 
     const std::vector<std::vector<unsigned char>>& getShape();

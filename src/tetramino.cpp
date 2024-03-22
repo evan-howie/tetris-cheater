@@ -16,24 +16,28 @@ void Tetramino::moveRight(){
     if(!testShape(shape, pos)) --pos.first;
 }
 
+void Tetramino::moveDown(){
+    --pos.second;
+    if(!testShape(shape, pos)) ++pos.second;
+}
+
 void Tetramino::rotateCW(){
     // Transpose the matrix
     // if (can't rotate) return
-    int old_rotation = rotation;
+    char old_rotation = rotation;
     rotation = (rotation + 1) % 4;
 
     std::vector<std::vector<unsigned char>> new_shape{shape};
 
+    // Reverse each row
+    for (auto& row : new_shape) {
+        std::reverse(row.begin(), row.end());
+    }
     // Transpose the matrix
     for (int i = 0; i < new_shape.size(); ++i) {
         for (int j = i; j < new_shape[i].size(); ++j) {
             std::swap(new_shape[i][j], new_shape[j][i]);
         }
-    }
-
-    // Reverse each row
-    for (auto& row : new_shape) {
-        std::reverse(row.begin(), row.end());
     }
 
     // apply offsets
@@ -48,21 +52,20 @@ void Tetramino::rotateCW(){
 void Tetramino::rotateCCW(){
     // Reverse each row
     // if (can't rotate) return
-    int old_rotation = rotation;
+    char old_rotation = rotation;
     rotation = rotation == 0 ? 3 : rotation - 1;
 
     std::vector<std::vector<unsigned char>> new_shape{shape};
-
-    // Reverse each row
-    for (auto& row : new_shape) {
-        std::reverse(row.begin(), row.end());
-    }
 
     // Transpose the matrix
     for (int i = 0; i < new_shape.size(); ++i) {
         for (int j = i; j < new_shape[i].size(); ++j) {
             std::swap(new_shape[i][j], new_shape[j][i]);
         }
+    }
+    // Reverse each row
+    for (auto& row : new_shape) {
+        std::reverse(row.begin(), row.end());
     }
 
     // apply offsets
@@ -93,14 +96,18 @@ std::pair<int, int> Tetramino::getOffset(std::vector<std::vector<unsigned char>>
 }
 
 bool Tetramino::testShape(std::vector<std::vector<unsigned char>>& test_shape, std::pair<int, int> test_pos){
-    for (int i = 0; i < test_shape.size(); ++i) {
-        for (int j = 0; j < test_shape[i].size(); ++j) {
-            if (isMino(i, j) && !board->inBounds(test_pos.first + i - origin.first, test_pos.second - j + origin.second)) {
+    for (int y = 0; y < test_shape.size(); ++y) {
+        for (int x = 0; x < test_shape[0].size(); ++x) {
+            if (isMino(test_shape, x, y) && !board->inBounds(test_pos.first + x - origin.first, test_pos.second + y - origin.second)) {
                 return false;
             }
         }
     }
     return true;
+}
+
+bool Tetramino::isMino(std::vector<std::vector<unsigned char>>& test_shape, int x, int y){
+    return test_shape[y][x] != board->empty_cell;
 }
 
 bool Tetramino::isMino(int x, int y){
@@ -125,7 +132,7 @@ void Tetramino::draw(sf::RenderWindow& window, int board_x, int board_y){
         for (int x = 0 ; x < shape[y].size() ; ++x){
             if (!isMino(x, y)) continue;
             int cell_x = (pos.first + x - origin.first) * board->tile_size + board_x;
-            int cell_y = (board->getHeight() - pos.second + y - 1 - origin.second) * board->tile_size + board_y;
+            int cell_y = (board->getHeight() - pos.second - y - 1 + origin.second) * board->tile_size + board_y;
             rect.setPosition(cell_x, cell_y);
 
             if(board->isMino(shape[y][x])){
@@ -151,6 +158,7 @@ Tetramino createI(Board* board){
         {x, x, x, x, x},
         {x, x, x, x, x},
     };
+    std::reverse(I_minos.begin(), I_minos.end());
 
     std::vector<std::vector<std::pair<int, int>>> offsets{
         {{0, 0}, {-1, 0}, {2, 0}, {-1, 0}, {2, 0}},
