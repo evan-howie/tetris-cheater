@@ -1,6 +1,7 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include "../includes/board.h"
+#include "../includes/settings.h"
 
 #define WINDOW_WIDTH 700
 #define WINDOW_HEIGHT 700
@@ -24,7 +25,7 @@ void tetris(){
 
     // clock
     sf::Clock clock;
-    const sf::Time loop_period = sf::seconds(1 / 60.f);
+    const sf::Time loop_period = sf::seconds(GAME_LOOP_PERIOD_s);
 
     // board
     Board board{BOARD_WIDTH, BOARD_HEIGHT, TILE_SIZE};

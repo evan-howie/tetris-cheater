@@ -19,13 +19,65 @@ void Board::init(){
 // called once per iteration of the game loop
 void Board::update(){
     // TODO: gravity
-    // if (++gravity_counter == gravity){
-    //     gravity_counter = 0;
-    //     cur_piece.moveDown();
-    // }
+    if(keys.right || keys.left)
+        incrementDAS();
+    else {
+        cur_das_time = DAS;
+        cur_arp_time = ARP;
+    }
+
+    incrementGravity();
+}
+
+void Board::incrementDAS(){
+    cur_das_time = std::max(0.0, cur_das_time - GAME_LOOP_PERIOD_ms);
+    if (cur_das_time != 0) return;
+    incrementARR();
+}
+
+void Board::incrementARR(){
+    cur_arp_time = std::max(0.0, cur_arp_time - GAME_LOOP_PERIOD_ms);
+
+    if (cur_arp_time != 0) return;
+
+    if (keys.left){
+        if(ARR >= 20) cur_piece.slideLeft();
+        else cur_piece.moveLeft();
+    } else if (keys.right){
+        if(ARR >= 20) cur_piece.slideRight();
+        else cur_piece.moveRight();
+    }
+    cur_arp_time = ARP;
+}
+
+void Board::incrementGravity(){
+    ++gravity_counter;
+    if (gravity_counter != gravity) return;
+
+    gravity_counter = 0;
+    cur_piece.moveDown();
+}
+
+void Board::hardDrop(){
+    while(cur_piece.moveDown());
+    placePiece();
+}
+
+void Board::placePiece(){
+    // place piece on board
+    for (int y = 0 ; y < cur_piece.getShape().size() ; ++y){
+        for (int x = 0 ; x < cur_piece.getShape()[y].size() ; ++x){
+            if (!cur_piece.isMino(x, y)) continue;
+
+            setMino(
+                cur_piece.getPos().first - cur_piece.getOrigin().first + x, 
+                cur_piece.getPos().second - cur_piece.getOrigin().second+ y, 
+                cur_piece.at(x, y));
+        }
+    }
 
     clearRows();
-
+    cur_piece = createI(this);
 }
 
 void Board::handleInput(sf::Event e){
@@ -34,15 +86,20 @@ void Board::handleInput(sf::Event e){
     if(e.type == sf::Event::KeyPressed){
         switch(e.key.code){
             case sf::Keyboard::Left:
-                cur_piece.moveLeft();
+                if (!keys.left)
+                    cur_piece.moveLeft();
+                keys.left = true;
                 break;
             case sf::Keyboard::Right:
-                cur_piece.moveRight();
+                if (!keys.right)
+                    cur_piece.moveRight();
+                keys.right = true;
                 break;
             case sf::Keyboard::Down:
                 cur_piece.moveDown();
                 break;
             case sf::Keyboard::Space:
+                hardDrop();
                 break;
             case sf::Keyboard::Z:
                 cur_piece.rotateCCW();
@@ -54,7 +111,18 @@ void Board::handleInput(sf::Event e){
                 break;
         }
     } else {
-
+        switch(e.key.code){
+            case sf::Keyboard::Left:
+                keys.left = false;
+                break;
+            case sf::Keyboard::Right:
+                keys.right = false;
+                break;
+            default:
+                break;
+        }
+        if (!keys.left && !keys.right)
+            cur_das_time = DAS;
     }
 }
 
@@ -63,7 +131,7 @@ void Board::handleInput(sf::Event e){
 void Board::clearRows(){
     // shift down starting from all full rows
     for (int row = 0 ; row < height ; ++row){
-        if (isRowFull(row)){
+        while (isRowFull(row)){
             shiftDown(row);
         }
     }

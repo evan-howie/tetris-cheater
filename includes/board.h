@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include "mino.h"
 #include "tetramino.h"
+#include "settings.h"
 
 #ifndef BOARD_H
 #define BOARD_H
@@ -26,9 +27,24 @@ private:
     void setMino(unsigned int x, unsigned int y, char mino);
 
     //input handling
-    const int DAS = 87; //ms
-    const int ARR = 40; //ms
-    const int SDF = -1; // insta drop
+    struct {
+        bool left = false;
+        bool right = false;
+        bool down = false;
+    } keys;
+
+    const double DAS = 85; // delayed auto shift ms
+    const double ARR = INT32_MAX; // auto repeat rate Hz
+    const double ARP = 1000.0 / ARR; // auto repeat period ms
+    const double SDF = -1; // insta drop
+    double cur_das_time = DAS;
+    double cur_arp_time = ARP;
+
+    void incrementDAS();
+    void incrementARR();
+    void incrementGravity();
+    void hardDrop();
+    void placePiece();
 
     const int gravity = 60; // frames per line
     int gravity_counter = 0;

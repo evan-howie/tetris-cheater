@@ -7,18 +7,43 @@ Tetramino::Tetramino(){}
 Tetramino::Tetramino(Board* _board, std::vector<std::vector<unsigned char>> &_shape, int _x, int _y, std::vector<std::vector<std::pair<int, int>>> _offsets) : board{_board}, shape{_shape}, pos{_x, _y}, offsets{_offsets}{}
 // Tetramino::Tetramino(std::vector<std::vector<unsigned char>> &_shape, int ox, int oy) : shape{_shape}, origin_x{ox}, origin_y{oy} {}
 
-void Tetramino::moveLeft(){
+bool Tetramino::moveLeft(){
     --pos.first;
-    if(!testShape(shape, pos)) ++pos.first;
-}
-void Tetramino::moveRight(){
-    ++pos.first;
-    if(!testShape(shape, pos)) --pos.first;
+    if(!testShape(shape, pos)) {
+        ++pos.first;
+        return false;
+    }
+    return true;
 }
 
-void Tetramino::moveDown(){
+bool Tetramino::moveRight(){
+    ++pos.first;
+    if(!testShape(shape, pos)){
+        --pos.first;
+        return false;
+    }
+    return true;
+}
+
+void Tetramino::slideLeft(){
+    while (testShape(shape, std::pair{pos.first - 1, pos.second})){
+        --pos.first;
+    }
+}
+
+void Tetramino::slideRight(){
+    while (testShape(shape, std::pair{pos.first + 1, pos.second})){
+        ++pos.first;
+    }
+}
+
+bool Tetramino::moveDown(){
     --pos.second;
-    if(!testShape(shape, pos)) ++pos.second;
+    if(!testShape(shape, pos)){
+        ++pos.second;
+        return false;
+    }
+    return true;
 }
 
 void Tetramino::rotateCW(){
@@ -98,7 +123,9 @@ std::pair<int, int> Tetramino::getOffset(std::vector<std::vector<unsigned char>>
 bool Tetramino::testShape(std::vector<std::vector<unsigned char>>& test_shape, std::pair<int, int> test_pos){
     for (int y = 0; y < test_shape.size(); ++y) {
         for (int x = 0; x < test_shape[0].size(); ++x) {
-            if (isMino(test_shape, x, y) && !board->inBounds(test_pos.first + x - origin.first, test_pos.second + y - origin.second)) {
+            int test_x = test_pos.first + x - origin.first;
+            int test_y = test_pos.second + y - origin.second;
+            if (isMino(test_shape, x, y) && (!board->inBounds(test_x, test_y) || board->isMino(test_x, test_y))) {
                 return false;
             }
         }
@@ -114,6 +141,7 @@ bool Tetramino::isMino(int x, int y){
     return shape[y][x] != board->empty_cell;
 }
 
+const unsigned char Tetramino::at(int x, int y){ return shape[y][x]; }
 const std::vector<std::vector<unsigned char>>& Tetramino::getShape(){return shape;}
 const std::pair<int, int>& Tetramino::getPos(){return pos;}
 const std::pair<int, int>& Tetramino::getOrigin(){return origin;}
@@ -138,9 +166,9 @@ void Tetramino::draw(sf::RenderWindow& window, int board_x, int board_y){
             if(board->isMino(shape[y][x])){
                 rect.setFillColor(mino::colors[shape[y][x]]);
             }
-            if(y == origin.second && x == origin.first){
-                rect.setFillColor(sf::Color::White);
-            }
+            // if(y == origin.second && x == origin.first){
+            //     rect.setFillColor(sf::Color::White);
+            // }
 
             window.draw(rect);
         }

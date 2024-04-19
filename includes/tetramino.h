@@ -23,9 +23,11 @@ public:
     Tetramino();
     Tetramino(Board* _board, std::vector<std::vector<unsigned char>> &_shape, int _x, int _y, std::vector<std::vector<std::pair<int, int>>> _offsets);
 
-    void moveLeft();
-    void moveRight();
-    void moveDown();
+    bool moveLeft();
+    bool moveRight();
+    void slideLeft();
+    void slideRight();
+    bool moveDown();
     void rotateCW();
     void rotateCCW();
     std::pair<int, int> getOffset(std::vector<std::vector<unsigned char>>& test_shape, char rotation, char old_rotation, int test);
@@ -33,6 +35,7 @@ public:
     bool isMino(std::vector<std::vector<unsigned char>>& test_shape, int x, int y);
     bool isMino(int x, int y);
 
+    const unsigned char at(int x, int y);
     const std::vector<std::vector<unsigned char>>& getShape();
     const std::pair<int, int>& getPos();
     const std::pair<int, int>& getOrigin();
