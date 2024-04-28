@@ -34,6 +34,7 @@ public:
 
     bool isMino(std::vector<std::vector<unsigned char>>& test_shape, int x, int y);
     bool isMino(int x, int y);
+    bool isEmpty();
 
     const unsigned char at(int x, int y);
     const std::vector<std::vector<unsigned char>>& getShape();

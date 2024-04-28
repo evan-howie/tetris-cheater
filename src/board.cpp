@@ -93,6 +93,15 @@ Tetramino Board::popBag(){
     return piece;
 }
 
+void Board::hold(){
+    if(held_piece.isEmpty()){
+        held_piece = cur_piece;
+        cur_piece = popBag();
+    } else {
+        std::swap(cur_piece, held_piece);
+    }
+}
+
 std::queue<Tetramino> Board::createBag(){
     std::queue<Tetramino> new_bag{};
     std::vector<Tetramino> pieces{
@@ -129,6 +138,9 @@ void Board::handleInput(sf::Event e){
                 if (!keys.right)
                     cur_piece.moveRight();
                 keys.right = true;
+                break;
+            case sf::Keyboard::C:
+                hold();
                 break;
             case sf::Keyboard::Down:
                 cur_piece.moveDown();

@@ -3,7 +3,12 @@
 #include <iostream>
 #include <algorithm>
 
-Tetramino::Tetramino(){}
+Tetramino::Tetramino(){
+    std::vector<std::vector<unsigned char>> empty_shape{};
+    shape = empty_shape;
+    pos = {0, 0};
+    offsets = {};
+}
 Tetramino::Tetramino(Board* _board, std::vector<std::vector<unsigned char>> &_shape, int _x, int _y, std::vector<std::vector<std::pair<int, int>>> _offsets) : board{_board}, shape{_shape}, pos{_x, _y}, offsets{_offsets}{}
 // Tetramino::Tetramino(std::vector<std::vector<unsigned char>> &_shape, int ox, int oy) : shape{_shape}, origin_x{ox}, origin_y{oy} {}
 
@@ -139,6 +144,10 @@ bool Tetramino::isMino(std::vector<std::vector<unsigned char>>& test_shape, int 
 
 bool Tetramino::isMino(int x, int y){
     return shape[y][x] != board->empty_cell;
+}
+
+bool Tetramino::isEmpty(){
+    return shape.empty();
 }
 
 const unsigned char Tetramino::at(int x, int y){ return shape[y][x]; }

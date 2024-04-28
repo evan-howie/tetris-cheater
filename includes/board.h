@@ -19,6 +19,7 @@ private:
 
     // tetramino
     Tetramino cur_piece;
+    Tetramino held_piece;
     std::queue<Tetramino> bag;
     std::queue<Tetramino> next_bag;
 
@@ -28,6 +29,7 @@ private:
     void shiftDown(unsigned int start_row);
     void placePiece();
     Tetramino popBag();
+    void hold();
     std::queue<Tetramino> createBag();
 
     void setMino(unsigned int x, unsigned int y, char mino);
