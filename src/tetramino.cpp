@@ -200,3 +200,136 @@ Tetramino createI(Board* board){
 
     return piece;
 }
+
+
+Tetramino createJ(Board* board){
+    unsigned char x = Board::empty_cell;
+    std::vector<std::vector<unsigned char>> J_minos{
+        {1, x, x},
+        {1, 1, 1},
+        {x, x, x},
+    };
+    std::reverse(J_minos.begin(), J_minos.end());
+
+    std::vector<std::vector<std::pair<int, int>>> offsets{
+        {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+        {{0, 0}, {1, 0}, {1, -1}, {0, 2}, {1, 2}},
+        {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+        {{0, 0}, {-1, 0}, {-1, -1}, {0, 2}, {-1, 2}}
+    };
+
+    Tetramino piece{board, J_minos, 4, 21, offsets};
+    piece.setOrigin(1, 1);
+
+    return piece;
+}
+
+Tetramino createL(Board* board){
+    unsigned char x = Board::empty_cell;
+    std::vector<std::vector<unsigned char>> L_minos{
+        {x, x, 2},
+        {2, 2, 2},
+        {x, x, x},
+    };
+    std::reverse(L_minos.begin(), L_minos.end());
+
+    std::vector<std::vector<std::pair<int, int>>> offsets{
+        {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+        {{0, 0}, {1, 0}, {1, -1}, {0, 2}, {1, 2}},
+        {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+        {{0, 0}, {-1, 0}, {-1, -1}, {0, 2}, {-1, 2}}
+    };
+
+    Tetramino piece{board, L_minos, 4, 21, offsets};
+    piece.setOrigin(1, 1);
+
+    return piece;
+}
+
+Tetramino createO(Board* board){
+    unsigned char x = Board::empty_cell;
+    std::vector<std::vector<unsigned char>> O_minos{
+        {x, 3, 3},
+        {x, 3, 3},
+        {x, x, x},
+    };
+    std::reverse(O_minos.begin(), O_minos.end());
+
+    std::vector<std::vector<std::pair<int, int>>> offsets{
+        {{0, 0}},
+        {{0, -1}},
+        {{-1, -1}},
+        {{-1, 0}}
+    };
+
+    Tetramino piece{board, O_minos, 4, 21, offsets};
+    piece.setOrigin(1, 1);
+
+    return piece;
+}
+
+Tetramino createS(Board* board){
+    unsigned char x = Board::empty_cell;
+    std::vector<std::vector<unsigned char>> S_minos{
+        {x, 4, 4},
+        {4, 4, x},
+        {x, x, x},
+    };
+    std::reverse(S_minos.begin(), S_minos.end());
+
+    std::vector<std::vector<std::pair<int, int>>> offsets{
+        {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+        {{0, 0}, {1, 0}, {1, -1}, {0, 2}, {1, 2}},
+        {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+        {{0, 0}, {-1, 0}, {-1, -1}, {0, 2}, {-1, 2}}
+    };
+
+    Tetramino piece{board, S_minos, 4, 21, offsets};
+    piece.setOrigin(1, 1);
+
+    return piece;
+}
+
+Tetramino createT(Board* board){
+    unsigned char x = Board::empty_cell;
+    std::vector<std::vector<unsigned char>> T_minos{
+        {x, 5, x},
+        {5, 5, 5},
+        {x, x, x},
+    };
+    std::reverse(T_minos.begin(), T_minos.end());
+
+    std::vector<std::vector<std::pair<int, int>>> offsets{
+        {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+        {{0, 0}, {1, 0}, {1, -1}, {0, 2}, {1, 2}},
+        {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+        {{0, 0}, {-1, 0}, {-1, -1}, {0, 2}, {-1, 2}}
+    };
+
+    Tetramino piece{board, T_minos, 4, 21, offsets};
+    piece.setOrigin(1, 1);
+
+    return piece;
+}
+
+Tetramino createZ(Board* board){
+    unsigned char x = Board::empty_cell;
+    std::vector<std::vector<unsigned char>> Z_minos{
+        {6, 6, x},
+        {x, 6, 6},
+        {x, x, x},
+    };
+    std::reverse(Z_minos.begin(), Z_minos.end());
+
+    std::vector<std::vector<std::pair<int, int>>> offsets{
+        {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+        {{0, 0}, {1, 0}, {1, -1}, {0, 2}, {1, 2}},
+        {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+        {{0, 0}, {-1, 0}, {-1, -1}, {0, 2}, {-1, 2}}
+    };
+
+    Tetramino piece{board, Z_minos, 4, 21, offsets};
+    piece.setOrigin(1, 1);
+
+    return piece;
+}

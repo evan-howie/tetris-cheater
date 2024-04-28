@@ -2,6 +2,7 @@
 #include "mino.h"
 #include "tetramino.h"
 #include "settings.h"
+#include <queue>
 
 #ifndef BOARD_H
 #define BOARD_H
@@ -18,11 +19,16 @@ private:
 
     // tetramino
     Tetramino cur_piece;
+    std::queue<Tetramino> bag;
+    std::queue<Tetramino> next_bag;
 
     bool isRowFull(unsigned int row);
 
     void clearRows();
     void shiftDown(unsigned int start_row);
+    void placePiece();
+    Tetramino popBag();
+    std::queue<Tetramino> createBag();
 
     void setMino(unsigned int x, unsigned int y, char mino);
 
@@ -44,7 +50,6 @@ private:
     void incrementARR();
     void incrementGravity();
     void hardDrop();
-    void placePiece();
 
     const int gravity = 60; // frames per line
     int gravity_counter = 0;

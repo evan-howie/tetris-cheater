@@ -13,7 +13,9 @@ Board::~Board(){
 
 void Board::init(){
     //TODO: im sure theres something we need to init
-    cur_piece = createI(this);
+    bag = createBag();
+    next_bag = createBag();
+    cur_piece = popBag();
 }
 
 // called once per iteration of the game loop
@@ -77,7 +79,37 @@ void Board::placePiece(){
     }
 
     clearRows();
-    cur_piece = createI(this);
+    cur_piece = popBag();
+}
+
+Tetramino Board::popBag(){
+    if (bag.empty()){
+        bag = next_bag;
+        next_bag = createBag();
+    }
+
+    Tetramino piece = bag.front();
+    bag.pop();
+    return piece;
+}
+
+std::queue<Tetramino> Board::createBag(){
+    std::queue<Tetramino> new_bag{};
+    std::vector<Tetramino> pieces{
+        createI(this),
+        createJ(this), 
+        createL(this), 
+        createO(this), 
+        createS(this), 
+        createT(this), 
+        createZ(this)
+    };
+
+    for (Tetramino& piece : pieces){
+        new_bag.push(piece);
+    }
+
+    return new_bag;
 }
 
 void Board::handleInput(sf::Event e){

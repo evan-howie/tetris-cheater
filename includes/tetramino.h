@@ -45,5 +45,11 @@ public:
 };
 
 Tetramino createI(Board* board);
+Tetramino createJ(Board* board);
+Tetramino createL(Board* board);
+Tetramino createO(Board* board);
+Tetramino createS(Board* board);
+Tetramino createT(Board* board);
+Tetramino createZ(Board* board);
 
 #endif
