@@ -1,5 +1,6 @@
 #include "../includes/board.h"
 #include <iostream>
+#include <random>
 
 Board::Board(unsigned int w, unsigned int h, unsigned int _tile_size) : width{w}, height{h}, tile_size{_tile_size}{
     board = new unsigned char[width * height];
@@ -115,7 +116,10 @@ std::queue<Tetramino> Board::createBag(){
     };
 
     // shuffle pieces
-    std::random_shuffle(pieces.begin(), pieces.end());
+    std::random_device rd;
+    std::mt19937 g(rd());
+    
+    std::shuffle(pieces.begin(), pieces.end(), g);
 
     for (Tetramino& piece : pieces){
         new_bag.push(piece);
