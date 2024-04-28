@@ -105,6 +105,9 @@ std::queue<Tetramino> Board::createBag(){
         createZ(this)
     };
 
+    // shuffle pieces
+    std::random_shuffle(pieces.begin(), pieces.end());
+
     for (Tetramino& piece : pieces){
         new_bag.push(piece);
     }
