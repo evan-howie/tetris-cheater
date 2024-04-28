@@ -31,15 +31,15 @@ bool Tetramino::moveRight(){
 }
 
 void Tetramino::slideLeft(){
-    while (testShape(shape, std::pair{pos.first - 1, pos.second})){
-        --pos.first;
-    }
+    while (moveLeft()){}
 }
 
 void Tetramino::slideRight(){
-    while (testShape(shape, std::pair{pos.first + 1, pos.second})){
-        ++pos.first;
-    }
+    while (moveRight()){}
+}
+
+void Tetramino::slideDown(){
+    while (moveDown()){}
 }
 
 bool Tetramino::moveDown(){

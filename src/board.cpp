@@ -143,7 +143,7 @@ void Board::handleInput(sf::Event e){
                 hold();
                 break;
             case sf::Keyboard::Down:
-                cur_piece.moveDown();
+                cur_piece.slideDown();
                 break;
             case sf::Keyboard::Space:
                 hardDrop();

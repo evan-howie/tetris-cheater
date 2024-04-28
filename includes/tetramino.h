@@ -27,6 +27,7 @@ public:
     bool moveRight();
     void slideLeft();
     void slideRight();
+    void slideDown();
     bool moveDown();
     void rotateCW();
     void rotateCCW();
