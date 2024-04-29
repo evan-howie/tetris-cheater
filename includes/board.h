@@ -1,8 +1,9 @@
 #include <SFML/Graphics.hpp>
+#include <queue>
 #include "mino.h"
 #include "tetramino.h"
 #include "settings.h"
-#include <queue>
+#include "next_queue.h"
 
 #ifndef BOARD_H
 #define BOARD_H
@@ -20,17 +21,14 @@ private:
     // tetramino
     Tetramino cur_piece;
     Tetramino held_piece;
-    std::queue<Tetramino> bag;
-    std::queue<Tetramino> next_bag;
+    NextQueue next_queue;
 
     bool isRowFull(unsigned int row);
 
     void clearRows();
     void shiftDown(unsigned int start_row);
     void placePiece();
-    Tetramino popBag();
     void hold();
-    std::queue<Tetramino> createBag();
 
     void setMino(unsigned int x, unsigned int y, char mino);
 

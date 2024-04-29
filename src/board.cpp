@@ -14,9 +14,8 @@ Board::~Board(){
 
 void Board::init(){
     //TODO: im sure theres something we need to init
-    bag = createBag();
-    next_bag = createBag();
-    cur_piece = popBag();
+    next_queue.init(this);
+    cur_piece = next_queue.pop();
 }
 
 // called once per iteration of the game loop
@@ -80,53 +79,19 @@ void Board::placePiece(){
     }
 
     clearRows();
-    cur_piece = popBag();
+    cur_piece = next_queue.pop();
 }
 
-Tetramino Board::popBag(){
-    if (bag.empty()){
-        bag = next_bag;
-        next_bag = createBag();
-    }
-
-    Tetramino piece = bag.front();
-    bag.pop();
-    return piece;
-}
 
 void Board::hold(){
     if(held_piece.isEmpty()){
         held_piece = cur_piece;
-        cur_piece = popBag();
+        cur_piece = next_queue.pop();
     } else {
         std::swap(cur_piece, held_piece);
     }
 }
 
-std::queue<Tetramino> Board::createBag(){
-    std::queue<Tetramino> new_bag{};
-    std::vector<Tetramino> pieces{
-        createI(this),
-        createJ(this), 
-        createL(this), 
-        createO(this), 
-        createS(this), 
-        createT(this), 
-        createZ(this)
-    };
-
-    // shuffle pieces
-    std::random_device rd;
-    std::mt19937 g(rd());
-    
-    std::shuffle(pieces.begin(), pieces.end(), g);
-
-    for (Tetramino& piece : pieces){
-        new_bag.push(piece);
-    }
-
-    return new_bag;
-}
 
 void Board::handleInput(sf::Event e){
     if (e.type != sf::Event::KeyPressed && e.type != sf::Event::KeyReleased) return;
