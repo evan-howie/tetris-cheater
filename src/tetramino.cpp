@@ -107,6 +107,13 @@ void Tetramino::rotateCCW(){
     }
 }
 
+void Tetramino::reset(){
+    pos = {4, 21};
+    while(rotation != 0){
+        rotateCCW();
+    }
+}
+
 bool Tetramino::applyOffset(std::vector<std::vector<unsigned char>>& new_shape, char old_rotation, char rotation){
     for (int i = 0 ; i < offsets[rotation].size() ; ++i){
         std::pair<int, int> offset = getOffset(new_shape, rotation, old_rotation, i);
@@ -160,6 +167,11 @@ void Tetramino::setOrigin(int x, int y){
     origin.second = y;
 }
 
+void Tetramino::setPos(int x, int y){
+    pos.first = x;
+    pos.second = y;
+}
+
 void Tetramino::draw(sf::RenderWindow& window, int board_x, int board_y){
     sf::RectangleShape rect(sf::Vector2f(board->tile_size, board->tile_size));
     rect.setOutlineColor(sf::Color::Black);
@@ -184,7 +196,7 @@ void Tetramino::draw(sf::RenderWindow& window, int board_x, int board_y){
     }
 }
 
-void Tetramino::drawOffBoard(sf::RenderWindow& window, int board_x, int board_y){
+void Tetramino::drawOffBoard(sf::RenderWindow& window, int dx, int dy){
     sf::RectangleShape rect(sf::Vector2f(board->tile_size, board->tile_size));
     rect.setOutlineColor(sf::Color::Black);
     rect.setOutlineThickness(1);
@@ -192,8 +204,8 @@ void Tetramino::drawOffBoard(sf::RenderWindow& window, int board_x, int board_y)
     for(int y = 0 ; y < shape.size() ; ++y){
         for (int x = 0 ; x < shape[y].size() ; ++x){
             if (!isMino(x, y)) continue;
-            int cell_x = x * board->tile_size + board_x;
-            int cell_y = y * board->tile_size + board_y;
+            int cell_x = x * board->tile_size + dx;
+            int cell_y = ( shape.size() - y ) * board->tile_size + dy;
             rect.setPosition(cell_x, cell_y);
 
             if(board->isMino(shape[y][x])){

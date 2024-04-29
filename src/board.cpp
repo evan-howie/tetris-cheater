@@ -84,6 +84,7 @@ void Board::placePiece(){
 
 
 void Board::hold(){
+    cur_piece.reset();
     if(held_piece.isEmpty()){
         held_piece = cur_piece;
         cur_piece = next_queue.pop();
@@ -123,6 +124,10 @@ void Board::handleInput(sf::Event e){
             case sf::Keyboard::X:
                 cur_piece.rotateCW();
                 break;
+            case sf::Keyboard::A:
+                // TODO: change to actual 180 spin
+                cur_piece.rotateCW();
+                cur_piece.rotateCW();
             default:
                 break;
         }
@@ -187,6 +192,11 @@ bool Board::inBounds(int x, int y){
     return x >= 0 && x < width && y >= 0 && y < height;
 }
 
+void Board::drawHeld(sf::RenderWindow& window, unsigned int x, unsigned int y){
+    //TODO: center around point x and y
+    held_piece.drawOffBoard(window, x, y);
+}
+
 void Board::draw(sf::RenderWindow& window, unsigned int board_x, unsigned int board_y){
     // draw board cells
     sf::RectangleShape rect(sf::Vector2f(tile_size, tile_size));
@@ -207,7 +217,12 @@ void Board::draw(sf::RenderWindow& window, unsigned int board_x, unsigned int bo
     // draw current piece
     cur_piece.draw(window, board_x, board_y);
 
-    // draw next_queue
+    // draw held piece
+    // std::cout << "hi: " << board_x - tile_size * 5 << std::endl;
+    drawHeld(window, board_x - tile_size * 4, board_y);
+    // std::cout << "hio: " << board_x - tile_size * 5 << std::endl;
+
+    // draw next queue
     next_queue.draw(window, board_x + width * tile_size + 5, board_y);
 }
 

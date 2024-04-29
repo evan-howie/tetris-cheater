@@ -54,6 +54,9 @@ private:
     const int gravity = 60; // frames per line
     int gravity_counter = 0;
 
+    // private draws
+    void drawHeld(sf::RenderWindow& window, unsigned int x, unsigned int y);
+
 public:
     const unsigned int tile_size;
     static const unsigned char empty_cell = 0x80;

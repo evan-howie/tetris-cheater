@@ -31,6 +31,7 @@ public:
     bool moveDown();
     void rotateCW();
     void rotateCCW();
+    void reset();
     std::pair<int, int> getOffset(std::vector<std::vector<unsigned char>>& test_shape, char rotation, char old_rotation, int test);
 
     bool isMino(std::vector<std::vector<unsigned char>>& test_shape, int x, int y);
@@ -42,6 +43,7 @@ public:
     const std::pair<int, int>& getPos();
     const std::pair<int, int>& getOrigin();
     void setOrigin(int x, int y);
+    void setPos(int x, int y);
 
     void draw(sf::RenderWindow& window, int board_x, int board_y);
     void drawOffBoard(sf::RenderWindow& window, int board_x, int board_y);
