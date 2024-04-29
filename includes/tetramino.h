@@ -44,6 +44,7 @@ public:
     void setOrigin(int x, int y);
 
     void draw(sf::RenderWindow& window, int board_x, int board_y);
+    void drawOffBoard(sf::RenderWindow& window, int board_x, int board_y);
 };
 
 Tetramino createI(Board* board);

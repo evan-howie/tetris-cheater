@@ -184,6 +184,30 @@ void Tetramino::draw(sf::RenderWindow& window, int board_x, int board_y){
     }
 }
 
+void Tetramino::drawOffBoard(sf::RenderWindow& window, int board_x, int board_y){
+    sf::RectangleShape rect(sf::Vector2f(board->tile_size, board->tile_size));
+    rect.setOutlineColor(sf::Color::Black);
+    rect.setOutlineThickness(1);
+
+    for(int y = 0 ; y < shape.size() ; ++y){
+        for (int x = 0 ; x < shape[y].size() ; ++x){
+            if (!isMino(x, y)) continue;
+            int cell_x = x * board->tile_size + board_x;
+            int cell_y = y * board->tile_size + board_y;
+            rect.setPosition(cell_x, cell_y);
+
+            if(board->isMino(shape[y][x])){
+                rect.setFillColor(mino::colors[shape[y][x]]);
+            }
+            // if(y == origin.second && x == origin.first){
+            //     rect.setFillColor(sf::Color::White);
+            // }
+
+            window.draw(rect);
+        }
+    }
+}
+
 // create functions
 
 Tetramino createI(Board* board){

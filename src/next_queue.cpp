@@ -44,3 +44,21 @@ Tetramino NextQueue::pop(){
     bag.pop();
     return piece;
 }
+
+void NextQueue::draw(sf::RenderWindow& window, int board_x, int board_y){
+    std::queue<Tetramino> temp_bag = bag;
+    std::queue<Tetramino> temp_next_bag = next_bag;
+    int i = 0;
+    const int gap = 70;
+
+    while (!temp_bag.empty()){
+        temp_bag.front().drawOffBoard(window, board_x, board_y + i++ * gap);
+        temp_bag.pop();
+        if (i == 5) return;
+    }
+    while (!temp_next_bag.empty()){
+        temp_next_bag.front().drawOffBoard(window, board_x, board_y + i++ * gap);
+        temp_next_bag.pop();
+        if (i == 5) return;
+    }
+}
