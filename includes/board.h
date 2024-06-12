@@ -58,7 +58,7 @@ private:
     void drawHeld(sf::RenderWindow& window, unsigned int x, unsigned int y);
 
 public:
-    const unsigned int tile_size;
+    unsigned int tile_size;
     static const unsigned char empty_cell = 0x80;
 
     Board(unsigned int w, unsigned int h, unsigned int tile_size);

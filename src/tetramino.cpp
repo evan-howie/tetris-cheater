@@ -8,7 +8,16 @@ Tetramino::Tetramino(){
     shape = empty_shape;
     pos = {0, 0};
     offsets = {};
+    board = nullptr;
 }
+
+Tetramino::Tetramino(Board* _board): board{_board}{
+    std::vector<std::vector<unsigned char>> empty_shape{};
+    shape = empty_shape;
+    pos = {0, 0};
+    offsets = {};
+}
+
 Tetramino::Tetramino(Board* _board, std::vector<std::vector<unsigned char>> &_shape, int _x, int _y, std::vector<std::vector<std::pair<int, int>>> _offsets) : board{_board}, shape{_shape}, pos{_x, _y}, offsets{_offsets}{}
 // Tetramino::Tetramino(std::vector<std::vector<unsigned char>> &_shape, int ox, int oy) : shape{_shape}, origin_x{ox}, origin_y{oy} {}
 
@@ -211,9 +220,6 @@ void Tetramino::drawOffBoard(sf::RenderWindow& window, int dx, int dy){
             if(board->isMino(shape[y][x])){
                 rect.setFillColor(mino::colors[shape[y][x]]);
             }
-            // if(y == origin.second && x == origin.first){
-            //     rect.setFillColor(sf::Color::White);
-            // }
 
             window.draw(rect);
         }

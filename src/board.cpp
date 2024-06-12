@@ -6,6 +6,8 @@ Board::Board(unsigned int w, unsigned int h, unsigned int _tile_size) : width{w}
     board = new unsigned char[width * height];
     for (unsigned int i = 0; i < width * height; ++i)
         board[i] = empty_cell;
+    cur_piece = Tetramino{this};
+    held_piece = Tetramino{this};
 }
 
 Board::~Board(){

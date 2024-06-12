@@ -21,6 +21,7 @@ private:
     Board* board;
 public:
     Tetramino();
+    Tetramino(Board* _board);
     Tetramino(Board* _board, std::vector<std::vector<unsigned char>> &_shape, int _x, int _y, std::vector<std::vector<std::pair<int, int>>> _offsets);
 
     bool moveLeft();
