@@ -28,8 +28,8 @@ void tetris(){
     const sf::Time loop_period = sf::seconds(GAME_LOOP_PERIOD_s);
 
     // board
-    Board board{BOARD_WIDTH, BOARD_HEIGHT, TILE_SIZE};
-    board.init();
+    Board* board{new Board{BOARD_WIDTH, BOARD_HEIGHT, TILE_SIZE}};
+    board->init();
 
     // main loop
     sf::Time time_since_last = sf::Time::Zero;
@@ -50,19 +50,23 @@ void tetris(){
                         case sf::Keyboard::Escape:
                             window.close();
                             break;
+                        case sf::Keyboard::R:
+                        delete board;
+                        board = new Board{BOARD_WIDTH, BOARD_HEIGHT, TILE_SIZE};
+                        board->init();
                     }
                 }
 
-                board.handleInput(event);
+                board->handleInput(event);
             }
 
             // update game logic here
             // one tick has passed
-            update(board);
+            update(*board);
         }
 
         // display the game state
-        draw(window, board);
+        draw(window, *board);
 
     }
 }

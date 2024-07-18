@@ -45,6 +45,8 @@ public:
     const std::pair<int, int>& getOrigin();
     void setOrigin(int x, int y);
     void setPos(int x, int y);
+    std::tuple<int, int, int, int> getBounds();
+    std::pair<int, int> getCenter();
 
     void draw(sf::RenderWindow& window, int board_x, int board_y);
     void drawOffBoard(sf::RenderWindow& window, int board_x, int board_y);

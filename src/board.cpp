@@ -225,7 +225,7 @@ void Board::draw(sf::RenderWindow& window, unsigned int board_x, unsigned int bo
     // std::cout << "hio: " << board_x - tile_size * 5 << std::endl;
 
     // draw next queue
-    next_queue.draw(window, board_x + width * tile_size + 5, board_y);
+    next_queue.draw(window, board_x, board_y);
 }
 
 void Board::setMino(unsigned int x, unsigned int y, char mino){
@@ -238,4 +238,8 @@ char Board::getMino(unsigned int x, unsigned int y){
 
 unsigned int Board::getHeight(){
     return height;
+}
+
+unsigned int Board::getWidth(){
+    return width;
 }

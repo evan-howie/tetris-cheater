@@ -1,5 +1,6 @@
 #include "../includes/next_queue.h"
 #include <random>
+#include "../includes/board.h"
 
 NextQueue::NextQueue(){}
 
@@ -50,16 +51,31 @@ void NextQueue::draw(sf::RenderWindow& window, int board_x, int board_y){
     std::queue<Tetramino> temp_bag = bag;
     std::queue<Tetramino> temp_next_bag = next_bag;
     int i = 0;
-    const int gap = 70;
+    const int tile_size = board->tile_size;
+    int gap = 10;
 
     while (!temp_bag.empty()){
-        temp_bag.front().drawOffBoard(window, board_x, board_y + i++ * gap);
+        Tetramino* cur_piece = &temp_bag.front();
+
+        auto [min_x, min_y, w, h] = cur_piece->getBounds();
+        auto [cx, cy] = cur_piece->getCenter();
+        unsigned int x0 = board_x + tile_size * (board->getWidth() + 2) - cx + 10;
+        unsigned int y0 = board_y + (min_y + h - cur_piece->getShape()[0].size()) * tile_size;
+        cur_piece->drawOffBoard(window, x0, y0 + gap);
+        gap += h * tile_size + 10;
         temp_bag.pop();
-        if (i == 5) return;
+        if (++i == 5) return;
     }
     while (!temp_next_bag.empty()){
-        temp_next_bag.front().drawOffBoard(window, board_x, board_y + i++ * gap);
+        Tetramino* cur_piece = &temp_next_bag.front();
+
+        auto [min_x, min_y, w, h] = cur_piece->getBounds();
+        auto [cx, cy] = cur_piece->getCenter();
+        unsigned int x0 = board_x + tile_size * (board->getWidth() + 2) - cx + 10;
+        unsigned int y0 = board_y + (min_y + h - cur_piece->getShape()[0].size()) * tile_size;
+        cur_piece->drawOffBoard(window, x0, y0 + gap);
+        gap += h * tile_size + 10;
         temp_next_bag.pop();
-        if (i == 5) return;
+        if (++i == 5) return;
     }
 }

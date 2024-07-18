@@ -214,7 +214,7 @@ void Tetramino::drawOffBoard(sf::RenderWindow& window, int dx, int dy){
         for (int x = 0 ; x < shape[y].size() ; ++x){
             if (!isMino(x, y)) continue;
             int cell_x = x * board->tile_size + dx;
-            int cell_y = ( shape.size() - y ) * board->tile_size + dy;
+            int cell_y = ( shape.size() - y - 1 ) * board->tile_size + dy;
             rect.setPosition(cell_x, cell_y);
 
             if(board->isMino(shape[y][x])){
@@ -224,6 +224,40 @@ void Tetramino::drawOffBoard(sf::RenderWindow& window, int dx, int dy){
             window.draw(rect);
         }
     }
+}
+
+std::tuple<int, int, int, int> Tetramino::getBounds(){
+    int y0 = shape.size();
+    int y1 = -1;
+    int x0 = shape[0].size();
+    int x1 = -1;
+
+    for (int y = 0; y < shape.size(); ++y) {
+        for (int x = 0; x < shape[y].size(); ++x) {
+            if (isMino(x, y)) {
+                y0 = std::min(y0, y);
+                y1 = std::max(y1, y);
+                x0 = std::min(x0, x);
+                x1 = std::max(x1, x);
+            }
+        }
+    }
+
+    if (y0 > y1 || x0 > x1) {
+        // No non-zero elements found
+        return {0, 0, 0, 0};
+    }
+
+    int width = x1 - x0 + 1;
+    int height = y1 - y0 + 1;
+
+    return {x0, y0, width, height};
+
+}
+
+std::pair<int, int> Tetramino::getCenter(){
+    auto [x, y, w, h] = getBounds();
+    return {(x + w / 2.0) * board->tile_size, (y + h / 2.0) * board->tile_size};
 }
 
 // create functions

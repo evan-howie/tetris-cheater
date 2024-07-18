@@ -39,10 +39,10 @@ private:
         bool down = false;
     } keys;
 
-    const double DAS = 85; // delayed auto shift ms
-    const double ARR = INT32_MAX; // auto repeat rate Hz
-    const double ARP = 1000.0 / ARR; // auto repeat period ms
-    const double SDF = -1; // insta drop
+    const double DAS = DEFAULT_DAS; // delayed auto shift ms
+    const double ARR = DEFAULT_ARR; // auto repeat rate Hz
+    const double ARP = DEFAULT_ARP; // auto repeat period ms
+    const double SDF = DEFAULT_SDF; // insta drop
     double cur_das_time = DAS;
     double cur_arp_time = ARP;
 
@@ -75,6 +75,7 @@ public:
     char getMino(unsigned int x, unsigned int y);
 
     unsigned int getHeight();
+    unsigned int getWidth();
 };
 
 #endif
