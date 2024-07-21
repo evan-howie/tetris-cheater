@@ -1,7 +1,7 @@
-#include <SFML/Graphics.hpp>
-
 #ifndef MINO_COLORS_H
 #define MINO_COLORS_H
+
+#include <SFML/Graphics.hpp>
 
 namespace mino {
     inline sf::Color cyan{sf::Color::Cyan};

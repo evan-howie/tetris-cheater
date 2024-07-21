@@ -1,10 +1,11 @@
-#include <vector>
-#include <SFML/Graphics.hpp>
+#ifndef TETRAMINO_H
+#define TETRAMINO_H
 
 class Board;
 
-#ifndef TETRAMINO_H
-#define TETRAMINO_H
+#include <vector>
+#include <SFML/Graphics.hpp>
+
 class Tetramino {
 private:
     std::pair<int, int> offset{0, 0};

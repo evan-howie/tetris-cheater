@@ -8,3 +8,5 @@
 #define DEFAULT_ARR INT32_MAX; 
 #define DEFAULT_ARP 1000.0 / ARR; 
 #define DEFAULT_SDF -1; 
+
+#define SHM_PATH "/tpp_shared_mem"

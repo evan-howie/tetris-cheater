@@ -1,12 +1,17 @@
+#ifndef BOARD_H
+#define BOARD_H
+
+#include <sys/mman.h>
+#include <sys/stat.h>        /* For mode constants */
+#include <fcntl.h>           /* For O_* constants */
+#include <unistd.h>
+#include <cstring>           /* For memset */
 #include <SFML/Graphics.hpp>
 #include <queue>
 #include "mino.h"
 #include "tetramino.h"
 #include "settings.h"
 #include "next_queue.h"
-
-#ifndef BOARD_H
-#define BOARD_H
 
 class Board {
 private:
@@ -57,6 +62,10 @@ private:
     // private draws
     void drawHeld(sf::RenderWindow& window, unsigned int x, unsigned int y);
 
+    bool writeToSharedMem = false;
+    int shmfd;
+    unsigned char* shm_board;
+
 public:
     unsigned int tile_size;
     static const unsigned char empty_cell = 0x80;
@@ -69,13 +78,16 @@ public:
     void handleInput(sf::Event e);
     void draw(sf::RenderWindow& window, unsigned int x, unsigned int y);
 
+    void initSharedMemory();
+
     bool isMino(unsigned int x, unsigned int y);
     bool isMino(unsigned char mino);
     bool inBounds(int x, int y);
-    char getMino(unsigned int x, unsigned int y);
+    unsigned char getMino(unsigned int x, unsigned int y);
 
     unsigned int getHeight();
     unsigned int getWidth();
+
 };
 
 #endif

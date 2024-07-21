@@ -1,8 +1,8 @@
-#include <queue>
-#include "tetramino.h"
-
 #ifndef NEXT_QUEUE_H
 #define NEXT_QUEUE_H
+
+#include <queue>
+#include "tetramino.h"
 
 class NextQueue {
 private:

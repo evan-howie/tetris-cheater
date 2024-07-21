@@ -69,6 +69,8 @@ void tetris(){
         draw(window, *board);
 
     }
+
+    delete board;
 }
 void update(Board& board){
     board.update();

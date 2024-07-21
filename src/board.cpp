@@ -1,23 +1,36 @@
 #include "../includes/board.h"
 #include <iostream>
 #include <random>
+#include <cstring>
 
-Board::Board(unsigned int w, unsigned int h, unsigned int _tile_size) : width{w}, height{h}, tile_size{_tile_size}{
-    board = new unsigned char[width * height];
-    for (unsigned int i = 0; i < width * height; ++i)
-        board[i] = empty_cell;
-    cur_piece = Tetramino{this};
-    held_piece = Tetramino{this};
-}
+Board::Board(unsigned int w, unsigned int h, unsigned int _tile_size) : width{w}, height{h}, tile_size{_tile_size}{}
 
 Board::~Board(){
     delete[] board;
+
+    // Unmap the shared memory
+    if (munmap(shm_board, width * height) == -1) {
+        perror("munmap");
+        exit(EXIT_FAILURE);
+    }
+
+    // Close the shared memory object
+    if (close(shmfd) == -1) {
+        perror("close");
+        exit(EXIT_FAILURE);
+    }
 }
 
 void Board::init(){
-    //TODO: im sure theres something we need to init
+    initSharedMemory();
+
+    board = new unsigned char[width * height];
+    for (unsigned int i = 0; i < width * height; ++i)
+        board[i] = empty_cell;
+
     next_queue.init(this);
     cur_piece = next_queue.pop();
+    held_piece = Tetramino{this};
 }
 
 // called once per iteration of the game loop
@@ -31,6 +44,11 @@ void Board::update(){
     }
 
     incrementGravity();
+
+
+    if (writeToSharedMem){
+        memcpy(shm_board, board, width * height);
+    }
 }
 
 void Board::incrementDAS(){
@@ -181,6 +199,33 @@ bool Board::isRowFull(unsigned int row){
     return true;
 }
 
+void Board::initSharedMemory() {
+    writeToSharedMem = true;
+
+    // Create a shared memory object
+    shmfd = shm_open(SHM_PATH, O_CREAT | O_RDWR, 0666);
+    if (shmfd == -1) {
+        perror("shm_open");
+        exit(EXIT_FAILURE);
+    }
+
+    const size_t size = width * height;
+
+    // Set the size of the shared memory object
+    if (ftruncate(shmfd, size) == -1) {
+        perror("ftruncate");
+        exit(EXIT_FAILURE);
+    }
+
+    // Map the shared memory object into the process's address space
+    shm_board = (unsigned char*) mmap(NULL, size, PROT_WRITE, MAP_SHARED, shmfd, 0);
+    if (shm_board == MAP_FAILED) {
+        perror("mmap");
+        exit(EXIT_FAILURE);
+    }
+    memset(shm_board, empty_cell, size);
+}
+
 bool Board::isMino(unsigned int x, unsigned int y){
     // use the msb of cell to represent a tile with something other than a mino (empty, something else)
     return ( board[x + y * width] & empty_cell ) == 0;
@@ -232,7 +277,7 @@ void Board::setMino(unsigned int x, unsigned int y, char mino){
     board[x + y * width] = mino;
 }
 
-char Board::getMino(unsigned int x, unsigned int y){
+unsigned char Board::getMino(unsigned int x, unsigned int y){
     return board[x + y * width];
 }
 
