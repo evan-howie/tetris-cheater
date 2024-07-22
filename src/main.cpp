@@ -12,6 +12,7 @@
 void tetris();
 void update(Board& board);
 void draw(sf::RenderWindow& window, Board& board);
+void reader(Board* board);
 
 struct {
     unsigned int x{WINDOW_WIDTH / 2 - BOARD_WIDTH * TILE_SIZE / 2};
@@ -70,6 +71,8 @@ void tetris(){
 
     }
 
+    reader(board);
+
     delete board;
 }
 void update(Board& board){
@@ -80,6 +83,37 @@ void draw(sf::RenderWindow& window, Board& board){
     window.clear(sf::Color::White);
     board.draw(window, board_d.x, board_d.y);
     window.display();
+}
+
+// sumulate a reader
+void reader(Board* board){
+    const char *shm_name = SHM_PATH;
+    int shm_fd = shm_open(shm_name, O_RDONLY, 0666);
+    if (shm_fd == -1) {
+        std::cerr << "Failed to open shared memory object" << std::endl;
+    }
+
+    const size_t SHM_SIZE = (board->getWidth() + 1) * board->getHeight();
+    unsigned char *shm_ptr = (unsigned char*) mmap(0, SHM_SIZE, PROT_READ, MAP_SHARED, shm_fd, 0);
+    if (shm_ptr == MAP_FAILED) {
+        std::cerr << "Failed to map shared memory object" << std::endl;
+    }
+
+    std::cout << shm_ptr << std::endl;
+
+    std::cout << std::endl;
+    std::cout << std::endl;
+    std::cout << std::endl;
+
+    board->print();
+
+    if (munmap(shm_ptr, SHM_SIZE) == -1) {
+        std::cerr << "Failed to unmap shared memory" << std::endl;
+    }
+
+    if (close(shm_fd) == -1) {
+        std::cerr << "Failed to close shared memory file descriptor" << std::endl;
+    }
 }
 
 int main(int argc, char* argv[]){

@@ -46,9 +46,20 @@ void Board::update(){
     incrementGravity();
 
 
-    if (writeToSharedMem){
-        memcpy(shm_board, board, width * height);
+    if (shm_enabled){
+        writeToSharedMem();
     }
+}
+
+void Board::writeToSharedMem(){
+    for (int j = 0 ; j < height ; ++j) {
+        for (int i = 0 ; i < width; ++i) {
+            unsigned char cell = board[i + j * width];
+            shm_board[i + (height - j - 1) * (width + 1)] = (cell == empty_cell) ? 'x' : (cell + '0'); 
+        }
+        shm_board[(height - j - 1) * (width + 1) + width] = '\n';
+    }
+    shm_board[(width + 1) * height - 1] = '\0';
 }
 
 void Board::incrementDAS(){
@@ -200,7 +211,7 @@ bool Board::isRowFull(unsigned int row){
 }
 
 void Board::initSharedMemory() {
-    writeToSharedMem = true;
+    shm_enabled = true;
 
     // Create a shared memory object
     shmfd = shm_open(SHM_PATH, O_CREAT | O_RDWR, 0666);
@@ -209,7 +220,7 @@ void Board::initSharedMemory() {
         exit(EXIT_FAILURE);
     }
 
-    const size_t size = width * height;
+    const size_t size = (width + 1) * height;
 
     // Set the size of the shared memory object
     if (ftruncate(shmfd, size) == -1) {
@@ -271,6 +282,21 @@ void Board::draw(sf::RenderWindow& window, unsigned int board_x, unsigned int bo
 
     // draw next queue
     next_queue.draw(window, board_x, board_y);
+}
+
+void Board::print() {
+    for (int j = height - 1 ; j >= 0 ; --j) {
+        for (int i = 0 ; i < width; ++i) {
+            unsigned char cell = board[i + j * width];
+            if (cell == empty_cell){
+                std::cout << 'x';
+            } else {
+                std::cout << (unsigned int) cell;
+            }
+        }
+        std::cout << '\n';
+    }
+    std::cout << std::flush;
 }
 
 void Board::setMino(unsigned int x, unsigned int y, char mino){

@@ -62,9 +62,10 @@ private:
     // private draws
     void drawHeld(sf::RenderWindow& window, unsigned int x, unsigned int y);
 
-    bool writeToSharedMem = false;
+    bool shm_enabled = false;
     int shmfd;
     unsigned char* shm_board;
+    void writeToSharedMem();
 
 public:
     unsigned int tile_size;
@@ -77,6 +78,7 @@ public:
     void update();
     void handleInput(sf::Event e);
     void draw(sf::RenderWindow& window, unsigned int x, unsigned int y);
+    void print();
 
     void initSharedMemory();
 
