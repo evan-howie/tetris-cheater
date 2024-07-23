@@ -71,8 +71,6 @@ void tetris(){
 
     }
 
-    reader(board);
-
     delete board;
 }
 void update(Board& board){
@@ -93,7 +91,6 @@ void reader(Board* board){
         std::cerr << "Failed to open shared memory object" << std::endl;
     }
 
-    const size_t SHM_SIZE = (board->getWidth() + 1) * board->getHeight();
     unsigned char *shm_ptr = (unsigned char*) mmap(0, SHM_SIZE, PROT_READ, MAP_SHARED, shm_fd, 0);
     if (shm_ptr == MAP_FAILED) {
         std::cerr << "Failed to map shared memory object" << std::endl;

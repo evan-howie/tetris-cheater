@@ -12,3 +12,6 @@
 #define DEFAULT_HARD_LOCK_FACTOR 5
 
 #define SHM_PATH "/tpp_shared_mem"
+#define SHM_SIZE 1024
+#define SHM_CELL_EMPTY 'o'
+#define SHM_CELL_FULL 'x'

@@ -8,6 +8,7 @@ Board::Board(unsigned int w, unsigned int h, unsigned int _tile_size) : width{w}
 Board::~Board(){
     delete[] board;
 
+    if (!shm_enabled) return;
     // Unmap the shared memory
     if (munmap(shm_board, width * height) == -1) {
         perror("munmap");
@@ -49,17 +50,6 @@ void Board::update(){
     if (shm_enabled){
         writeToSharedMem();
     }
-}
-
-void Board::writeToSharedMem(){
-    for (int j = 0 ; j < height ; ++j) {
-        for (int i = 0 ; i < width; ++i) {
-            unsigned char cell = board[i + j * width];
-            shm_board[i + (height - j - 1) * (width + 1)] = (cell == empty_cell) ? 'x' : (cell + '0'); 
-        }
-        shm_board[(height - j - 1) * (width + 1) + width] = '\n';
-    }
-    shm_board[(width + 1) * height - 1] = '\0';
 }
 
 void Board::incrementDAS(){
@@ -230,6 +220,44 @@ bool Board::isRowFull(unsigned int row){
     return true;
 }
 
+void Board::writeToSharedMem(){
+    // write board
+    for (int j = 0 ; j < height ; ++j) {
+        for (int i = 0 ; i < width; ++i) {
+            unsigned char cell = board[i + j * width];
+            shm_board[i + (height - j - 1) * (width + 1)] = (cell == empty_cell) ? SHM_CELL_EMPTY : SHM_CELL_FULL; 
+        }
+        shm_board[(height - j - 1) * (width + 1) + width] = '\n';
+    }
+
+    // write cur_piece
+    std::vector<std::vector<unsigned char>> cur_piece_shape = cur_piece.getShape();
+    std::pair<int, int> pos = cur_piece.getPos();
+    std::pair<int, int> origin = cur_piece.getOrigin();
+
+    for(int y = 0 ; y < cur_piece_shape.size() ; ++y){
+        for (int x = 0 ; x < cur_piece_shape.size() ; ++x){
+            unsigned char cell = cur_piece.isMino(x, y) ? SHM_CELL_FULL : SHM_CELL_EMPTY;
+            int cell_x = pos.first + x - origin.first;
+            int cell_y = height - pos.second - y - 1 + origin.second;
+
+            shm_board[cell_x + cell_y * (width + 1)] = cell;
+        }
+    }
+    
+    // TODO: write hold
+    // std::vector<std::vector<unsigned char>> held_piece_shape = held_piece.getShape();
+    // int shm_pos = (width + 1) * height;
+    // shm_board[shm_pos++] = 'h';
+    // shm_board[shm_pos++] = '\n';
+    // for (int j = held_piece_shape.size() - 1 ; j >= 0 ; --j) {
+    //     for (int i = 0 ; i < held_piece_shape[j].size() ; ++i) {
+    //         shm_board[shm_pos++] = held_piece.isMino(i, j) ? SHM_CELL_FULL : SHM_CELL_EMPTY;
+    //     }
+    //     shm_board[shm_pos++] = '\n';
+    // }
+}
+
 void Board::initSharedMemory() {
     shm_enabled = true;
 
@@ -240,7 +268,7 @@ void Board::initSharedMemory() {
         exit(EXIT_FAILURE);
     }
 
-    const size_t size = (width + 1) * height;
+    const int size = SHM_SIZE;
 
     // Set the size of the shared memory object
     if (ftruncate(shmfd, size) == -1) {
@@ -254,7 +282,7 @@ void Board::initSharedMemory() {
         perror("mmap");
         exit(EXIT_FAILURE);
     }
-    memset(shm_board, empty_cell, size);
+    memset(shm_board, 0, size);
 }
 
 bool Board::isMino(unsigned int x, unsigned int y){
