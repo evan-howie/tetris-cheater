@@ -16,7 +16,6 @@ private:
     std::vector<std::vector<unsigned char>> shape;
     std::vector<std::vector<std::pair<int, int>>> offsets;
 
-    bool testShape(std::vector<std::vector<unsigned char>>& test_shape, std::pair<int, int> test_pos);
     bool applyOffset(std::vector<std::vector<unsigned char>>& test_shape, char old_rotation, char new_rotation);
 
     Board* board;
@@ -36,6 +35,7 @@ public:
     void reset();
     std::pair<int, int> getOffset(std::vector<std::vector<unsigned char>>& test_shape, char rotation, char old_rotation, int test);
 
+    bool testShape(std::vector<std::vector<unsigned char>>& test_shape, std::pair<int, int> test_pos);
     bool isMino(std::vector<std::vector<unsigned char>>& test_shape, int x, int y);
     bool isMino(int x, int y);
     bool isEmpty();

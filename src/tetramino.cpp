@@ -22,6 +22,7 @@ Tetramino::Tetramino(Board* _board, std::vector<std::vector<unsigned char>> &_sh
 // Tetramino::Tetramino(std::vector<std::vector<unsigned char>> &_shape, int ox, int oy) : shape{_shape}, origin_x{ox}, origin_y{oy} {}
 
 bool Tetramino::moveLeft(){
+    board->resetLockTimer();
     --pos.first;
     if(!testShape(shape, pos)) {
         ++pos.first;
@@ -31,6 +32,7 @@ bool Tetramino::moveLeft(){
 }
 
 bool Tetramino::moveRight(){
+    board->resetLockTimer();
     ++pos.first;
     if(!testShape(shape, pos)){
         --pos.first;
@@ -61,6 +63,7 @@ bool Tetramino::moveDown(){
 }
 
 void Tetramino::rotateCW(){
+    board->resetLockTimer();
     // Transpose the matrix
     // if (can't rotate) return
     char old_rotation = rotation;
@@ -89,6 +92,7 @@ void Tetramino::rotateCW(){
 }
 
 void Tetramino::rotateCCW(){
+    board->resetLockTimer();
     // Reverse each row
     // if (can't rotate) return
     char old_rotation = rotation;

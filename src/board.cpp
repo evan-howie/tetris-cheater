@@ -44,7 +44,7 @@ void Board::update(){
     }
 
     incrementGravity();
-
+    incrementLockTimer();
 
     if (shm_enabled){
         writeToSharedMem();
@@ -64,14 +64,14 @@ void Board::writeToSharedMem(){
 
 void Board::incrementDAS(){
     cur_das_time = std::max(0.0, cur_das_time - GAME_LOOP_PERIOD_ms);
-    if (cur_das_time != 0) return;
+    if (cur_das_time > 0.0) return;
     incrementARR();
 }
 
 void Board::incrementARR(){
     cur_arp_time = std::max(0.0, cur_arp_time - GAME_LOOP_PERIOD_ms);
 
-    if (cur_arp_time != 0) return;
+    if (cur_arp_time > 0.0) return;
 
     if (keys.left){
         if(ARR >= 20) cur_piece.slideLeft();
@@ -91,12 +91,32 @@ void Board::incrementGravity(){
     cur_piece.moveDown();
 }
 
+void Board::incrementLockTimer() {
+    std::pair<int, int> pos = cur_piece.getPos();
+    std::vector<std::vector<unsigned char>> shape = cur_piece.getShape();
+    is_empty_space_below = !cur_piece.testShape(shape, {pos.first, pos.second - 1});
+
+    if (!is_empty_space_below){
+        resetLockTimer();
+        return;
+    }
+
+    cur_lock_timer = std::max(0.0, cur_lock_timer - GAME_LOOP_PERIOD_ms);
+    hard_lock_timer = std::max(0.0, hard_lock_timer - GAME_LOOP_PERIOD_ms);
+
+    if (cur_lock_timer > 0.0 && hard_lock_timer > 0.0) return;
+
+    placePiece();
+}
+
 void Board::hardDrop(){
     while(cur_piece.moveDown());
     placePiece();
 }
 
 void Board::placePiece(){
+    resetHardLockTimer();
+    resetLockTimer();
     // place piece on board
     for (int y = 0 ; y < cur_piece.getShape().size() ; ++y){
         for (int x = 0 ; x < cur_piece.getShape()[y].size() ; ++x){
@@ -297,6 +317,14 @@ void Board::print() {
         std::cout << '\n';
     }
     std::cout << std::flush;
+}
+
+void Board::resetLockTimer() {
+    cur_lock_timer = lock_time;
+}
+
+void Board::resetHardLockTimer() {
+    hard_lock_timer = lock_time * hard_lock_factor;
 }
 
 void Board::setMino(unsigned int x, unsigned int y, char mino){

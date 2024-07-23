@@ -58,6 +58,12 @@ private:
 
     const int gravity = 60; // frames per line
     int gravity_counter = 0;
+    double lock_time = DEFAULT_LOCK_TIME;
+    double hard_lock_factor = DEFAULT_HARD_LOCK_FACTOR;
+    double cur_lock_timer = lock_time; // lock if no input and there is no space below
+    double hard_lock_timer = lock_time * DEFAULT_HARD_LOCK_FACTOR; // lock regardless of input
+    bool is_empty_space_below = false;
+    void incrementLockTimer();
 
     // private draws
     void drawHeld(sf::RenderWindow& window, unsigned int x, unsigned int y);
@@ -79,6 +85,9 @@ public:
     void handleInput(sf::Event e);
     void draw(sf::RenderWindow& window, unsigned int x, unsigned int y);
     void print();
+
+    void resetLockTimer();
+    void resetHardLockTimer();
 
     void initSharedMemory();
 
