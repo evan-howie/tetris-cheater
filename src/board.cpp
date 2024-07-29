@@ -241,6 +241,8 @@ void Board::writeToSharedMem(){
             int cell_x = pos.first + x - origin.first;
             int cell_y = height - pos.second - y - 1 + origin.second;
 
+            if (!cur_piece.isMino(x, y)) continue;
+
             shm_board[cell_x + cell_y * (width + 1)] = cell;
         }
     }
@@ -325,7 +327,7 @@ void Board::draw(sf::RenderWindow& window, unsigned int board_x, unsigned int bo
 
     // draw held piece
     // std::cout << "hi: " << board_x - tile_size * 5 << std::endl;
-    drawHeld(window, board_x - tile_size * 4, board_y);
+    drawHeld(window, board_x - tile_size * 5, board_y);
     // std::cout << "hio: " << board_x - tile_size * 5 << std::endl;
 
     // draw next queue
