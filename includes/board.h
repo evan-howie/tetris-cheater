@@ -66,7 +66,7 @@ private:
     void incrementLockTimer();
 
     // private draws
-    void drawHeld(sf::RenderWindow& window, unsigned int x, unsigned int y);
+    void drawHeld(sf::RenderWindow* window, unsigned int x, unsigned int y);
 
     bool shm_enabled = false;
     int shmfd;
@@ -83,7 +83,7 @@ public:
     void init();
     void update();
     void handleInput(sf::Event e);
-    void draw(sf::RenderWindow& window, unsigned int x, unsigned int y);
+    void draw(sf::RenderWindow* window, unsigned int x, unsigned int y);
     void print();
 
     void resetLockTimer();

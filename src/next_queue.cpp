@@ -46,7 +46,7 @@ Tetramino NextQueue::pop(){
     return piece;
 }
 
-void NextQueue::draw(sf::RenderWindow& window, int board_x, int board_y){
+void NextQueue::draw(sf::RenderWindow* window, int board_x, int board_y){
     //TODO: center all pieces 
     std::queue<Tetramino> temp_bag = bag;
     std::queue<Tetramino> temp_next_bag = next_bag;

@@ -300,12 +300,12 @@ bool Board::inBounds(int x, int y){
     return x >= 0 && x < width && y >= 0 && y < height;
 }
 
-void Board::drawHeld(sf::RenderWindow& window, unsigned int x, unsigned int y){
+void Board::drawHeld(sf::RenderWindow* window, unsigned int x, unsigned int y){
     //TODO: center around point x and y
     held_piece.drawOffBoard(window, x, y);
 }
 
-void Board::draw(sf::RenderWindow& window, unsigned int board_x, unsigned int board_y){
+void Board::draw(sf::RenderWindow* window, unsigned int board_x, unsigned int board_y){
     // draw board cells
     sf::RectangleShape rect(sf::Vector2f(tile_size, tile_size));
     rect.setOutlineColor(sf::Color::Black);
@@ -318,7 +318,7 @@ void Board::draw(sf::RenderWindow& window, unsigned int board_x, unsigned int bo
                 mino::colors[board[x + y * width]] :
                 empty_cell_color);
 
-            window.draw(rect);
+            window->draw(rect);
         }
     }
 

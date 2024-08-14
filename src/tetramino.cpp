@@ -185,7 +185,7 @@ void Tetramino::setPos(int x, int y){
     pos.second = y;
 }
 
-void Tetramino::draw(sf::RenderWindow& window, int board_x, int board_y){
+void Tetramino::draw(sf::RenderWindow* window, int board_x, int board_y){
     sf::RectangleShape rect(sf::Vector2f(board->tile_size, board->tile_size));
     rect.setOutlineColor(sf::Color::Black);
     rect.setOutlineThickness(1);
@@ -204,12 +204,12 @@ void Tetramino::draw(sf::RenderWindow& window, int board_x, int board_y){
             //     rect.setFillColor(sf::Color::White);
             // }
 
-            window.draw(rect);
+            window->draw(rect);
         }
     }
 }
 
-void Tetramino::drawOffBoard(sf::RenderWindow& window, int dx, int dy){
+void Tetramino::drawOffBoard(sf::RenderWindow* window, int dx, int dy){
     sf::RectangleShape rect(sf::Vector2f(board->tile_size, board->tile_size));
     rect.setOutlineColor(sf::Color::Black);
     rect.setOutlineThickness(1);
@@ -225,7 +225,7 @@ void Tetramino::drawOffBoard(sf::RenderWindow& window, int dx, int dy){
                 rect.setFillColor(mino::colors[shape[y][x]]);
             }
 
-            window.draw(rect);
+            window->draw(rect);
         }
     }
 }
