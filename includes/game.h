@@ -10,6 +10,10 @@ private:
     sf::RenderWindow *window;
     Board *board{};
 
+    std::string top_out_text_string{"Press \"r\" to try again!"};
+    sf::Font top_out_text_font;
+    sf::Text top_out_text;
+
     unsigned int window_width;
     unsigned int window_height;
     float loop_period_s;
@@ -31,6 +35,8 @@ public:
     void play();
     void update();
     void draw();
+    void drawTopOut();
+    void setupText();
     Board* createBoard(unsigned int width, unsigned int height, unsigned int tile_size);
     void handleInput(sf::Event event);
 };

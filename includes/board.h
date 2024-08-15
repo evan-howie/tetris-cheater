@@ -13,6 +13,11 @@
 #include "settings.h"
 #include "next_queue.h"
 
+enum class BoardStatus {
+    PLAYING,
+    TOP_OUT
+};
+
 class Board {
 private:
     // board cells are characters representing what the cell contains (for mino some num < N_MINOS)
@@ -33,6 +38,7 @@ private:
     void clearRows();
     void shiftDown(unsigned int start_row);
     void placePiece();
+    void newPiece();
     void hold();
 
     void setMino(unsigned int x, unsigned int y, char mino);
@@ -74,6 +80,8 @@ private:
     void writeToSharedMem();
 
 public:
+    enum BoardStatus status = BoardStatus::PLAYING;
+
     unsigned int tile_size;
     static const unsigned char empty_cell = 0x80;
 

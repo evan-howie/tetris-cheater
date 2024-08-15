@@ -30,7 +30,7 @@ void Board::init(){
         board[i] = empty_cell;
 
     next_queue.init(this);
-    cur_piece = next_queue.pop();
+    newPiece();
     held_piece = Tetramino{this};
 }
 
@@ -120,15 +120,21 @@ void Board::placePiece(){
     }
 
     clearRows();
-    cur_piece = next_queue.pop();
+    newPiece();
 }
 
+void Board::newPiece() {
+    cur_piece = next_queue.pop();
+    if (!cur_piece.testShape(cur_piece.getPos())) {
+        status = BoardStatus::TOP_OUT;
+    }
+}
 
 void Board::hold(){
     cur_piece.reset();
     if(held_piece.isEmpty()){
         held_piece = cur_piece;
-        cur_piece = next_queue.pop();
+        newPiece();
     } else {
         std::swap(cur_piece, held_piece);
     }

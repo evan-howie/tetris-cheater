@@ -158,6 +158,19 @@ bool Tetramino::testShape(std::vector<std::vector<unsigned char>>& test_shape, s
     return true;
 }
 
+bool Tetramino::testShape(std::pair<int, int> test_pos){
+    for (int y = 0; y < shape.size(); ++y) {
+        for (int x = 0; x < shape[0].size(); ++x) {
+            int test_x = test_pos.first + x - origin.first;
+            int test_y = test_pos.second + y - origin.second;
+            if (isMino(shape, x, y) && (!board->inBounds(test_x, test_y) || board->isMino(test_x, test_y))) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 bool Tetramino::isMino(std::vector<std::vector<unsigned char>>& test_shape, int x, int y){
     return test_shape[y][x] != board->empty_cell;
 }

@@ -1,4 +1,5 @@
 #include "../includes/game.h"
+#include <iostream>
 
 Game::Game(
     unsigned int _window_width,
@@ -22,8 +23,16 @@ Game::~Game() {
 }
 // maybe move to structs with window settings and board settings
 void Game::play() {
+    setupText();
     // set up window
-    window = new sf::RenderWindow{sf::VideoMode{window_width, window_height}, "tetris"};
+    sf::ContextSettings settings;
+    settings.antialiasingLevel = 8;
+    window = new sf::RenderWindow{
+        sf::VideoMode{window_width, window_height},
+        "tetris",
+        sf::Style::Default,
+        settings
+    };
     window->setPosition(sf::Vector2i{100, 100});
 
     //set up board
@@ -87,6 +96,12 @@ void Game::update() {
 }
 
 void Game::draw() {
+    if (board->status == BoardStatus::TOP_OUT) {
+        // end screen
+        drawTopOut();
+        window->display();
+        return;
+    }
     unsigned int bw = board->getWidth();
     unsigned int dx{window_width / 2 - bw * tile_size/ 2};
     unsigned int dy{0};
@@ -94,4 +109,25 @@ void Game::draw() {
     window->clear(sf::Color::White);
     board->draw(window, dx, dy);
     window->display();
+}
+
+void Game::drawTopOut() {
+    window->draw(top_out_text);
+}
+
+void Game::setupText() {
+    if (!top_out_text_font.loadFromFile("../fonts/open-sans-variable.ttf")){ // maybe move to env something
+        exit(1);
+    }
+    top_out_text.setFont(top_out_text_font);
+    top_out_text.setScale(1, 1);
+    top_out_text.setString(top_out_text_string);
+    top_out_text.setCharacterSize(64);
+    top_out_text.setFillColor(sf::Color::White);
+    top_out_text.setOutlineColor(sf::Color::Black);
+    top_out_text.setOutlineThickness(2);
+    sf::FloatRect bounds = top_out_text.getGlobalBounds();
+    top_out_text.setOrigin(bounds.left + bounds.width / 2.f , bounds.top + bounds.height / 2.f);
+    top_out_text.setPosition(window_width / 2, window_height / 2);
+    top_out_text.setStyle(sf::Text::Regular);
 }
