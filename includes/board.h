@@ -22,8 +22,6 @@ class Board {
 private:
     // board cells are characters representing what the cell contains (for mino some num < N_MINOS)
     // bottom row is index 0
-    const sf::Color empty_cell_color = sf::Color{0x1b1b1bff};
-
     unsigned char* board;
     unsigned int width;
     unsigned int height;
@@ -83,7 +81,6 @@ public:
     enum BoardStatus status = BoardStatus::PLAYING;
 
     unsigned int tile_size;
-    static const unsigned char empty_cell = 0x80;
 
     Board(unsigned int w, unsigned int h, unsigned int tile_size);
     ~Board();

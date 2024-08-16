@@ -172,11 +172,11 @@ bool Tetramino::testShape(std::pair<int, int> test_pos){
 }
 
 bool Tetramino::isMino(std::vector<std::vector<unsigned char>>& test_shape, int x, int y){
-    return test_shape[y][x] != board->empty_cell;
+    return test_shape[y][x] != mino::EMPTY;
 }
 
 bool Tetramino::isMino(int x, int y){
-    return shape[y][x] != board->empty_cell;
+    return shape[y][x] != mino::EMPTY;
 }
 
 bool Tetramino::isEmpty(){
@@ -211,7 +211,7 @@ void Tetramino::draw(sf::RenderWindow* window, int board_x, int board_y){
             rect.setPosition(cell_x, cell_y);
 
             if(board->isMino(shape[y][x])){
-                rect.setFillColor(mino::colors[shape[y][x]]);
+                rect.setFillColor(mino::color_map.at(shape[y][x]));
             }
             // if(y == origin.second && x == origin.first){
             //     rect.setFillColor(sf::Color::White);
@@ -235,7 +235,7 @@ void Tetramino::drawOffBoard(sf::RenderWindow* window, int dx, int dy){
             rect.setPosition(cell_x, cell_y);
 
             if(board->isMino(shape[y][x])){
-                rect.setFillColor(mino::colors[shape[y][x]]);
+                rect.setFillColor(mino::color_map.at(shape[y][x]));
             }
 
             window->draw(rect);
@@ -280,13 +280,14 @@ std::pair<int, int> Tetramino::getCenter(){
 // create functions
 
 Tetramino createI(Board* board){
-    unsigned char x = Board::empty_cell;
+    unsigned char _ = mino::EMPTY;
+    unsigned char x = mino::I;
     std::vector<std::vector<unsigned char>> I_minos{
-        {x, x, x, x, x},
-        {x, x, x, x, x},
-        {x, 0, 0, 0, 0},
-        {x, x, x, x, x},
-        {x, x, x, x, x},
+        {_, _, _, _, _},
+        {_, _, _, _, _},
+        {_, x, x, x, x},
+        {_, _, _, _, _},
+        {_, _, _, _, _},
     };
     std::reverse(I_minos.begin(), I_minos.end());
 
@@ -305,11 +306,12 @@ Tetramino createI(Board* board){
 
 
 Tetramino createJ(Board* board){
-    unsigned char x = Board::empty_cell;
+    unsigned char _ = mino::EMPTY;
+    unsigned char x = mino::J;
     std::vector<std::vector<unsigned char>> J_minos{
-        {1, x, x},
-        {1, 1, 1},
+        {x, _, _},
         {x, x, x},
+        {_, _, _},
     };
     std::reverse(J_minos.begin(), J_minos.end());
 
@@ -327,11 +329,12 @@ Tetramino createJ(Board* board){
 }
 
 Tetramino createL(Board* board){
-    unsigned char x = Board::empty_cell;
+    unsigned char _ = mino::EMPTY;
+    unsigned char x = mino::L;
     std::vector<std::vector<unsigned char>> L_minos{
-        {x, x, 2},
-        {2, 2, 2},
+        {_, _, x},
         {x, x, x},
+        {_, _, _},
     };
     std::reverse(L_minos.begin(), L_minos.end());
 
@@ -349,11 +352,12 @@ Tetramino createL(Board* board){
 }
 
 Tetramino createO(Board* board){
-    unsigned char x = Board::empty_cell;
+    unsigned char _ = mino::EMPTY;
+    unsigned char x = mino::O;
     std::vector<std::vector<unsigned char>> O_minos{
-        {x, 3, 3},
-        {x, 3, 3},
-        {x, x, x},
+        {_, x, x},
+        {_, x, x},
+        {_, _, _},
     };
     std::reverse(O_minos.begin(), O_minos.end());
 
@@ -371,11 +375,12 @@ Tetramino createO(Board* board){
 }
 
 Tetramino createS(Board* board){
-    unsigned char x = Board::empty_cell;
+    unsigned char _ = mino::EMPTY;
+    unsigned char x = mino::S;
     std::vector<std::vector<unsigned char>> S_minos{
-        {x, 4, 4},
-        {4, 4, x},
-        {x, x, x},
+        {_, x, x},
+        {x, x, _},
+        {_, _, _},
     };
     std::reverse(S_minos.begin(), S_minos.end());
 
@@ -393,11 +398,12 @@ Tetramino createS(Board* board){
 }
 
 Tetramino createT(Board* board){
-    unsigned char x = Board::empty_cell;
+    unsigned char _ = mino::EMPTY;
+    unsigned char x = mino::T;
     std::vector<std::vector<unsigned char>> T_minos{
-        {x, 5, x},
-        {5, 5, 5},
+        {_, x, _},
         {x, x, x},
+        {_, _, _},
     };
     std::reverse(T_minos.begin(), T_minos.end());
 
@@ -415,11 +421,12 @@ Tetramino createT(Board* board){
 }
 
 Tetramino createZ(Board* board){
-    unsigned char x = Board::empty_cell;
+    unsigned char _ = mino::EMPTY;
+    unsigned char x = mino::Z;
     std::vector<std::vector<unsigned char>> Z_minos{
-        {6, 6, x},
-        {x, 6, 6},
-        {x, x, x},
+        {x, x, _},
+        {_, x, x},
+        {_, _, _},
     };
     std::reverse(Z_minos.begin(), Z_minos.end());
 

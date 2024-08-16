@@ -27,7 +27,7 @@ void Board::init(){
 
     board = new unsigned char[width * height];
     for (unsigned int i = 0; i < width * height; ++i)
-        board[i] = empty_cell;
+        board[i] = mino::EMPTY;
 
     next_queue.init(this);
     newPiece();
@@ -215,7 +215,7 @@ void Board::shiftDown(unsigned int start_row){
 
     //empty top row
     for (int x = 0 ; x < width ; ++x){
-        setMino(x, height - 1, empty_cell);
+        setMino(x, height - 1, mino::EMPTY);
     }
 }
 
@@ -231,7 +231,7 @@ void Board::writeToSharedMem(){
     for (int j = 0 ; j < height ; ++j) {
         for (int i = 0 ; i < width; ++i) {
             unsigned char cell = board[i + j * width];
-            shm_board[i + (height - j - 1) * (width + 1)] = (cell == empty_cell) ? SHM_CELL_EMPTY : SHM_CELL_FULL; 
+            shm_board[i + (height - j - 1) * (width + 1)] = (cell == mino::EMPTY) ? SHM_CELL_EMPTY : SHM_CELL_FULL; 
         }
         shm_board[(height - j - 1) * (width + 1) + width] = '\n';
     }
@@ -295,11 +295,11 @@ void Board::initSharedMemory() {
 
 bool Board::isMino(unsigned int x, unsigned int y){
     // use the msb of cell to represent a tile with something other than a mino (empty, something else)
-    return ( board[x + y * width] & empty_cell ) == 0;
+    return ( board[x + y * width] & mino::EMPTY ) == 0;
 }
 
 bool Board::isMino(unsigned char mino){
-    return (mino & empty_cell) == 0;
+    return (mino & mino::EMPTY) == 0;
 }
 
 bool Board::inBounds(int x, int y){
@@ -320,9 +320,9 @@ void Board::draw(sf::RenderWindow* window, unsigned int board_x, unsigned int bo
         for (int y = 0 ; y < height ; ++y){
             rect.setPosition(x * tile_size + board_x, (height - y - 1) * tile_size + board_y);
 
-            rect.setFillColor(isMino(x, y) ?
-                mino::colors[board[x + y * width]] :
-                empty_cell_color);
+            rect.setFillColor(
+                mino::color_map.at(isMino(x, y) ? board[x + y * width] : mino::EMPTY)
+            );
 
             window->draw(rect);
         }
@@ -344,7 +344,7 @@ void Board::print() {
     for (int j = height - 1 ; j >= 0 ; --j) {
         for (int i = 0 ; i < width; ++i) {
             unsigned char cell = board[i + j * width];
-            if (cell == empty_cell){
+            if (cell == mino::EMPTY){
                 std::cout << 'x';
             } else {
                 std::cout << (unsigned int) cell;
