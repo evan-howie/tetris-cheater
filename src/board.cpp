@@ -332,12 +332,12 @@ void Board::draw(sf::RenderWindow* window, unsigned int board_x, unsigned int bo
     cur_piece.draw(window, board_x, board_y);
 
     // draw held piece
-    // std::cout << "hi: " << board_x - tile_size * 5 << std::endl;
     drawHeld(window, board_x - tile_size * 5, board_y);
-    // std::cout << "hio: " << board_x - tile_size * 5 << std::endl;
 
     // draw next queue
-    next_queue.draw(window, board_x, board_y);
+    int dx = board_x + tile_size * (getWidth() + 2) + 10;
+    int dy = board_y;
+    next_queue.draw(window, dx, dy, tile_size);
 }
 
 void Board::print() {
