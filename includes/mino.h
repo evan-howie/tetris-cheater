@@ -14,6 +14,10 @@ namespace mino {
     const unsigned char Z = 6;
     const unsigned char EMPTY=0x80;
 
+    inline bool isMino(unsigned char m){
+        return (m & mino::EMPTY) == 0;
+    }
+
     // Create a map to match enum values to colors
     const std::unordered_map<unsigned char, sf::Color> color_map = {
         {I, sf::Color::Cyan},

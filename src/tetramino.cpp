@@ -8,62 +8,60 @@ Tetramino::Tetramino(){
     shape = empty_shape;
     pos = {0, 0};
     offsets = {};
-    board = nullptr;
 }
 
-Tetramino::Tetramino(Board* _board): board{_board}{
-    std::vector<std::vector<unsigned char>> empty_shape{};
-    shape = empty_shape;
-    pos = {0, 0};
-    offsets = {};
-}
-
-Tetramino::Tetramino(Board* _board, std::vector<std::vector<unsigned char>> &_shape, int _x, int _y, std::vector<std::vector<std::pair<int, int>>> _offsets) : board{_board}, shape{_shape}, pos{_x, _y}, offsets{_offsets}{}
+Tetramino::Tetramino(
+    std::vector<std::vector<unsigned char>> &_shape,
+    int _x,
+    int _y,
+    std::vector<std::vector<std::pair<int, int>>> _offsets
+) : 
+    shape{_shape}, 
+    pos{_x, _y}, 
+    offsets{_offsets}
+{}
 // Tetramino::Tetramino(std::vector<std::vector<unsigned char>> &_shape, int ox, int oy) : shape{_shape}, origin_x{ox}, origin_y{oy} {}
 
-bool Tetramino::moveLeft(){
-    board->resetLockTimer();
+bool Tetramino::moveLeft(Board* board){
     --pos.first;
-    if(!testShape(shape, pos)) {
+    if(!testShape(board, shape, pos)) {
         ++pos.first;
         return false;
     }
     return true;
 }
 
-bool Tetramino::moveRight(){
-    board->resetLockTimer();
+bool Tetramino::moveRight(Board* board){
     ++pos.first;
-    if(!testShape(shape, pos)){
+    if(!testShape(board, shape, pos)){
         --pos.first;
         return false;
     }
     return true;
 }
 
-void Tetramino::slideLeft(){
-    while (moveLeft()){}
+void Tetramino::slideLeft(Board* board){
+    while (moveLeft(board)){}
 }
 
-void Tetramino::slideRight(){
-    while (moveRight()){}
+void Tetramino::slideRight(Board* board){
+    while (moveRight(board)){}
 }
 
-void Tetramino::slideDown(){
-    while (moveDown()){}
+void Tetramino::slideDown(Board* board){
+    while (moveDown(board)){}
 }
 
-bool Tetramino::moveDown(){
+bool Tetramino::moveDown(Board* board){
     --pos.second;
-    if(!testShape(shape, pos)){
+    if(!testShape(board, shape, pos)){
         ++pos.second;
         return false;
     }
     return true;
 }
 
-void Tetramino::rotateCW(){
-    board->resetLockTimer();
+void Tetramino::rotateCW(Board* board){
     // Transpose the matrix
     // if (can't rotate) return
     char old_rotation = rotation;
@@ -83,7 +81,7 @@ void Tetramino::rotateCW(){
     }
 
     // apply offsets
-    if (applyOffset(new_shape, old_rotation, rotation)){
+    if (applyOffset(board, new_shape, old_rotation, rotation)){
         shape = new_shape;
     }
     else{
@@ -91,8 +89,7 @@ void Tetramino::rotateCW(){
     }
 }
 
-void Tetramino::rotateCCW(){
-    board->resetLockTimer();
+void Tetramino::rotateCCW(Board* board){
     // Reverse each row
     // if (can't rotate) return
     char old_rotation = rotation;
@@ -112,7 +109,7 @@ void Tetramino::rotateCCW(){
     }
 
     // apply offsets
-    if (applyOffset(new_shape, old_rotation, rotation)){
+    if (applyOffset(board, new_shape, old_rotation, rotation)){
         shape = new_shape;
     }
     else{
@@ -120,17 +117,17 @@ void Tetramino::rotateCCW(){
     }
 }
 
-void Tetramino::reset(){
-    pos = {4, 21};
-    while(rotation != 0){
-        rotateCCW();
+void Tetramino::reset(Board* board){
+    pos = defaultPosition.pos;
+    while(rotation != defaultPosition.rotation){
+        rotateCCW(board);
     }
 }
 
-bool Tetramino::applyOffset(std::vector<std::vector<unsigned char>>& new_shape, char old_rotation, char rotation){
+bool Tetramino::applyOffset(Board* board, std::vector<std::vector<unsigned char>>& new_shape, char old_rotation, char rotation){
     for (int i = 0 ; i < offsets[rotation].size() ; ++i){
         std::pair<int, int> offset = getOffset(new_shape, rotation, old_rotation, i);
-        if(testShape(new_shape, std::pair{pos.first + offset.first, pos.second + offset.second})){
+        if(testShape(board, new_shape, std::pair{pos.first + offset.first, pos.second + offset.second})){
             pos.first += offset.first;
             pos.second += offset.second;
             return true;
@@ -145,7 +142,7 @@ std::pair<int, int> Tetramino::getOffset(std::vector<std::vector<unsigned char>>
     return std::pair{  old_offset.first - offset.first, old_offset.second - offset.second };
 }
 
-bool Tetramino::testShape(std::vector<std::vector<unsigned char>>& test_shape, std::pair<int, int> test_pos){
+bool Tetramino::testShape(Board* board, std::vector<std::vector<unsigned char>>& test_shape, std::pair<int, int> test_pos){
     for (int y = 0; y < test_shape.size(); ++y) {
         for (int x = 0; x < test_shape[0].size(); ++x) {
             int test_x = test_pos.first + x - origin.first;
@@ -158,7 +155,7 @@ bool Tetramino::testShape(std::vector<std::vector<unsigned char>>& test_shape, s
     return true;
 }
 
-bool Tetramino::testShape(std::pair<int, int> test_pos){
+bool Tetramino::testShape(Board* board, std::pair<int, int> test_pos){
     for (int y = 0; y < shape.size(); ++y) {
         for (int x = 0; x < shape[0].size(); ++x) {
             int test_x = test_pos.first + x - origin.first;
@@ -198,43 +195,26 @@ void Tetramino::setPos(int x, int y){
     pos.second = y;
 }
 
-void Tetramino::draw(sf::RenderWindow* window, int board_x, int board_y){
-    sf::RectangleShape rect(sf::Vector2f(board->tile_size, board->tile_size));
-    rect.setOutlineColor(sf::Color::Black);
-    rect.setOutlineThickness(1);
+void Tetramino::drawOnBoard(Board* board, sf::RenderWindow* window, int board_x, int board_y, unsigned int tile_size){
+    int x = (pos.first - origin.first) * tile_size + board_x;
+    int y = (board->getHeight() - pos.second - origin.second - 1) * tile_size + board_y;
 
-    for(int y = 0 ; y < shape.size() ; ++y){
-        for (int x = 0 ; x < shape[y].size() ; ++x){
-            if (!isMino(x, y)) continue;
-            int cell_x = (pos.first + x - origin.first) * board->tile_size + board_x;
-            int cell_y = (board->getHeight() - pos.second - y - 1 + origin.second) * board->tile_size + board_y;
-            rect.setPosition(cell_x, cell_y);
-
-            if(board->isMino(shape[y][x])){
-                rect.setFillColor(mino::color_map.at(shape[y][x]));
-            }
-            // if(y == origin.second && x == origin.first){
-            //     rect.setFillColor(sf::Color::White);
-            // }
-
-            window->draw(rect);
-        }
-    }
+    draw(window, x, y, tile_size);
 }
 
-void Tetramino::drawOffBoard(sf::RenderWindow* window, int dx, int dy){
-    sf::RectangleShape rect(sf::Vector2f(board->tile_size, board->tile_size));
+void Tetramino::draw(sf::RenderWindow* window, int dx, int dy, unsigned int tile_size){
+    sf::RectangleShape rect(sf::Vector2f(tile_size, tile_size));
     rect.setOutlineColor(sf::Color::Black);
     rect.setOutlineThickness(1);
 
     for(int y = 0 ; y < shape.size() ; ++y){
         for (int x = 0 ; x < shape[y].size() ; ++x){
             if (!isMino(x, y)) continue;
-            int cell_x = x * board->tile_size + dx;
-            int cell_y = ( shape.size() - y - 1 ) * board->tile_size + dy;
+            int cell_x = (x) * tile_size + dx;
+            int cell_y = (shape.size() - y - 1) * tile_size + dy;
             rect.setPosition(cell_x, cell_y);
 
-            if(board->isMino(shape[y][x])){
+            if(mino::isMino(shape[y][x])){
                 rect.setFillColor(mino::color_map.at(shape[y][x]));
             }
 
@@ -268,13 +248,13 @@ std::tuple<int, int, int, int> Tetramino::getBounds(){
     int width = x1 - x0 + 1;
     int height = y1 - y0 + 1;
 
-    return {x0, y0, width, height};
+    return {x0, shape.size() - y1 - 1, width, height};
 
 }
 
-std::pair<int, int> Tetramino::getCenter(){
+std::pair<double, double> Tetramino::getCenter(){
     auto [x, y, w, h] = getBounds();
-    return {(x + w / 2.0) * board->tile_size, (y + h / 2.0) * board->tile_size};
+    return {x + w / 2.0, y + h / 2.0};
 }
 
 // create functions
@@ -298,7 +278,7 @@ Tetramino createI(Board* board){
         {{0, 1}, {0, 1}, {0, 1}, {0, -1}, {0, 2}}
     };
 
-    Tetramino piece{board, I_minos, 4, 21, offsets};
+    Tetramino piece{I_minos, 4, 21, offsets};
     piece.setOrigin(2, 2);
 
     return piece;
@@ -322,7 +302,7 @@ Tetramino createJ(Board* board){
         {{0, 0}, {-1, 0}, {-1, -1}, {0, 2}, {-1, 2}}
     };
 
-    Tetramino piece{board, J_minos, 4, 21, offsets};
+    Tetramino piece{J_minos, 4, 21, offsets};
     piece.setOrigin(1, 1);
 
     return piece;
@@ -345,7 +325,7 @@ Tetramino createL(Board* board){
         {{0, 0}, {-1, 0}, {-1, -1}, {0, 2}, {-1, 2}}
     };
 
-    Tetramino piece{board, L_minos, 4, 21, offsets};
+    Tetramino piece{L_minos, 4, 21, offsets};
     piece.setOrigin(1, 1);
 
     return piece;
@@ -368,7 +348,7 @@ Tetramino createO(Board* board){
         {{-1, 0}}
     };
 
-    Tetramino piece{board, O_minos, 4, 21, offsets};
+    Tetramino piece{O_minos, 4, 21, offsets};
     piece.setOrigin(1, 1);
 
     return piece;
@@ -391,7 +371,7 @@ Tetramino createS(Board* board){
         {{0, 0}, {-1, 0}, {-1, -1}, {0, 2}, {-1, 2}}
     };
 
-    Tetramino piece{board, S_minos, 4, 21, offsets};
+    Tetramino piece{S_minos, 4, 21, offsets};
     piece.setOrigin(1, 1);
 
     return piece;
@@ -414,7 +394,7 @@ Tetramino createT(Board* board){
         {{0, 0}, {-1, 0}, {-1, -1}, {0, 2}, {-1, 2}}
     };
 
-    Tetramino piece{board, T_minos, 4, 21, offsets};
+    Tetramino piece{T_minos, 4, 21, offsets};
     piece.setOrigin(1, 1);
 
     return piece;
@@ -437,7 +417,7 @@ Tetramino createZ(Board* board){
         {{0, 0}, {-1, 0}, {-1, -1}, {0, 2}, {-1, 2}}
     };
 
-    Tetramino piece{board, Z_minos, 4, 21, offsets};
+    Tetramino piece{Z_minos, 4, 21, offsets};
     piece.setOrigin(1, 1);
 
     return piece;

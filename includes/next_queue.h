@@ -15,7 +15,7 @@ public:
     NextQueue();
     void init(Board* board);
     Tetramino pop();
-    void draw(sf::RenderWindow* window, int dx, int dy, unsigned int tile_size);
+    void draw(sf::RenderWindow* window, int dx, int dy, unsigned int tile_size, unsigned int width=5);
 };
 
 #endif

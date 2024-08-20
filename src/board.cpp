@@ -31,7 +31,7 @@ void Board::init(){
 
     next_queue.init(this);
     newPiece();
-    held_piece = Tetramino{this};
+    held_piece = Tetramino{};
 }
 
 // called once per iteration of the game loop
@@ -64,11 +64,11 @@ void Board::incrementARR(){
     if (cur_arp_time > 0.0) return;
 
     if (keys.left){
-        if(ARR >= 20) cur_piece.slideLeft();
-        else cur_piece.moveLeft();
+        if(ARR >= 20) cur_piece.slideLeft(this);
+        else cur_piece.moveLeft(this);
     } else if (keys.right){
-        if(ARR >= 20) cur_piece.slideRight();
-        else cur_piece.moveRight();
+        if(ARR >= 20) cur_piece.slideRight(this);
+        else cur_piece.moveRight(this);
     }
     cur_arp_time = ARP;
 }
@@ -78,13 +78,13 @@ void Board::incrementGravity(){
     if (gravity_counter != gravity) return;
 
     gravity_counter = 0;
-    cur_piece.moveDown();
+    cur_piece.moveDown(this);
 }
 
 void Board::incrementLockTimer() {
     std::pair<int, int> pos = cur_piece.getPos();
     std::vector<std::vector<unsigned char>> shape = cur_piece.getShape();
-    is_empty_space_below = !cur_piece.testShape(shape, {pos.first, pos.second - 1});
+    is_empty_space_below = !cur_piece.testShape(this, shape, {pos.first, pos.second - 1});
 
     if (!is_empty_space_below){
         resetLockTimer();
@@ -100,7 +100,7 @@ void Board::incrementLockTimer() {
 }
 
 void Board::hardDrop(){
-    while(cur_piece.moveDown());
+    while(cur_piece.moveDown(this));
     placePiece();
 }
 
@@ -125,13 +125,13 @@ void Board::placePiece(){
 
 void Board::newPiece() {
     cur_piece = next_queue.pop();
-    if (!cur_piece.testShape(cur_piece.getPos())) {
+    if (!cur_piece.testShape(this, cur_piece.getPos())) {
         status = BoardStatus::TOP_OUT;
     }
 }
 
 void Board::hold(){
-    cur_piece.reset();
+    cur_piece.reset(this);
     if(held_piece.isEmpty()){
         held_piece = cur_piece;
         newPiece();
@@ -147,34 +147,37 @@ void Board::handleInput(sf::Event e){
     if(e.type == sf::Event::KeyPressed){
         switch(e.key.code){
             case sf::Keyboard::Left:
+                resetLockTimer();
                 if (!keys.left)
-                    cur_piece.moveLeft();
+                    cur_piece.moveLeft(this);
                 keys.left = true;
                 break;
             case sf::Keyboard::Right:
+                resetLockTimer();
                 if (!keys.right)
-                    cur_piece.moveRight();
+                    cur_piece.moveRight(this);
                 keys.right = true;
                 break;
             case sf::Keyboard::C:
                 hold();
                 break;
             case sf::Keyboard::Down:
-                cur_piece.slideDown();
+                resetLockTimer();
+                cur_piece.slideDown(this);
                 break;
             case sf::Keyboard::Space:
                 hardDrop();
                 break;
             case sf::Keyboard::Z:
-                cur_piece.rotateCCW();
+                cur_piece.rotateCCW(this);
                 break;
             case sf::Keyboard::X:
-                cur_piece.rotateCW();
+                cur_piece.rotateCW(this);
                 break;
             case sf::Keyboard::A:
                 // TODO: change to actual 180 spin
-                cur_piece.rotateCW();
-                cur_piece.rotateCW();
+                cur_piece.rotateCW(this);
+                cur_piece.rotateCW(this);
             default:
                 break;
         }
@@ -308,7 +311,7 @@ bool Board::inBounds(int x, int y){
 
 void Board::drawHeld(sf::RenderWindow* window, unsigned int x, unsigned int y){
     //TODO: center around point x and y
-    held_piece.drawOffBoard(window, x, y);
+    held_piece.draw(window, x, y, tile_size);
 }
 
 void Board::draw(sf::RenderWindow* window, unsigned int board_x, unsigned int board_y){
@@ -329,13 +332,13 @@ void Board::draw(sf::RenderWindow* window, unsigned int board_x, unsigned int bo
     }
 
     // draw current piece
-    cur_piece.draw(window, board_x, board_y);
+    cur_piece.drawOnBoard(this, window, board_x, board_y, tile_size);
 
     // draw held piece
     drawHeld(window, board_x - tile_size * 5, board_y);
 
     // draw next queue
-    int dx = board_x + tile_size * (getWidth() + 2) + 10;
+    int dx = board_x + tile_size * (getWidth()) + 10;
     int dy = board_y;
     next_queue.draw(window, dx, dy, tile_size);
 }

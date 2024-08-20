@@ -1,6 +1,7 @@
 #include "../includes/next_queue.h"
 #include <random>
 #include "../includes/board.h"
+#include <iostream>
 
 NextQueue::NextQueue(){}
 
@@ -67,7 +68,7 @@ Tetramino NextQueue::pop(){
     return piece;
 }
 
-void NextQueue::draw(sf::RenderWindow* window, int dx, int dy, unsigned int tile_size){
+void NextQueue::draw(sf::RenderWindow* window, int dx, int dy, unsigned int tile_size, unsigned int width /*=5*/){
     //TODO: center all pieces 
     std::queue<Tetramino> cur_queue = asQueue();
     int i = 0;
@@ -78,9 +79,10 @@ void NextQueue::draw(sf::RenderWindow* window, int dx, int dy, unsigned int tile
 
         auto [min_x, min_y, w, h] = cur_piece->getBounds();
         auto [cx, cy] = cur_piece->getCenter();
-        int x0 = dx - cx;
-        int y0 = dy + (min_y + h - cur_piece->getShape()[0].size()) * tile_size;
-        cur_piece->drawOffBoard(window, x0, y0 + gap);
+        auto [ox, oy] = cur_piece->getOrigin();
+        int x0 = dx + (width / 2.0 - cx) * tile_size;
+        int y0 = dy - (min_y) * tile_size;
+        cur_piece->draw(window, x0, y0 + gap, tile_size);
         gap += h * tile_size + 10;
         cur_queue.pop();
         if (++i == 5) return; // only draw 5
