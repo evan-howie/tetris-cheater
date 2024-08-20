@@ -1,12 +1,10 @@
 #include "../includes/next_queue.h"
 #include <random>
-#include "../includes/board.h"
 #include <iostream>
 
 NextQueue::NextQueue(){}
 
-void NextQueue::init(Board* _board){
-    board = _board;
+void NextQueue::init(){
     bag = createBag();
     next_bag = createBag();
 }
@@ -14,13 +12,13 @@ void NextQueue::init(Board* _board){
 std::queue<Tetramino> NextQueue::createBag(){
     std::queue<Tetramino> new_bag{};
     std::vector<Tetramino> pieces{
-        createI(board),
-        createJ(board), 
-        createL(board), 
-        createO(board), 
-        createS(board), 
-        createT(board), 
-        createZ(board)
+        createI(),
+        createJ(), 
+        createL(), 
+        createO(), 
+        createS(), 
+        createT(), 
+        createZ()
     };
 
     // shuffle pieces
@@ -72,7 +70,7 @@ void NextQueue::draw(sf::RenderWindow* window, int dx, int dy, unsigned int tile
     //TODO: center all pieces 
     std::queue<Tetramino> cur_queue = asQueue();
     int i = 0;
-    int gap = 10;
+    int gap = 0;
 
     while (!cur_queue.empty()){
         Tetramino* cur_piece = &cur_queue.front();

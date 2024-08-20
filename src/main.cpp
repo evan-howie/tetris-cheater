@@ -43,7 +43,8 @@ int main(int argc, char* argv[]){
         GAME_LOOP_PERIOD_s,
         BOARD_WIDTH,
         BOARD_HEIGHT,
-        TILE_SIZE
+        TILE_SIZE,
+        SHM_SIZE
     };
     game.play();
 

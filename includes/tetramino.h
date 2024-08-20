@@ -55,15 +55,15 @@ public:
     std::pair<double, double> getCenter();
 
     void drawOnBoard(Board* board, sf::RenderWindow* window, int board_x, int board_y, unsigned int tile_size);
-    void draw(sf::RenderWindow* window, int board_x, int board_y, unsigned int tile_size);
+    void draw(sf::RenderWindow* window, int dx, int dy, unsigned int tile_size);
 };
 
-Tetramino createI(Board* board);
-Tetramino createJ(Board* board);
-Tetramino createL(Board* board);
-Tetramino createO(Board* board);
-Tetramino createS(Board* board);
-Tetramino createT(Board* board);
-Tetramino createZ(Board* board);
+Tetramino createI();
+Tetramino createJ();
+Tetramino createL();
+Tetramino createO();
+Tetramino createS();
+Tetramino createT();
+Tetramino createZ();
 
 #endif

@@ -1,5 +1,6 @@
 #include "../includes/tetramino.h"
 #include "../includes/board.h"
+#include "../includes/mino.h"
 #include <iostream>
 #include <algorithm>
 
@@ -224,6 +225,7 @@ void Tetramino::draw(sf::RenderWindow* window, int dx, int dy, unsigned int tile
 }
 
 std::tuple<int, int, int, int> Tetramino::getBounds(){
+    if (!shape.size()) return {0, 0, 0, 0};
     int y0 = shape.size();
     int y1 = -1;
     int x0 = shape[0].size();
@@ -259,7 +261,7 @@ std::pair<double, double> Tetramino::getCenter(){
 
 // create functions
 
-Tetramino createI(Board* board){
+Tetramino createI(){
     unsigned char _ = mino::EMPTY;
     unsigned char x = mino::I;
     std::vector<std::vector<unsigned char>> I_minos{
@@ -285,7 +287,7 @@ Tetramino createI(Board* board){
 }
 
 
-Tetramino createJ(Board* board){
+Tetramino createJ(){
     unsigned char _ = mino::EMPTY;
     unsigned char x = mino::J;
     std::vector<std::vector<unsigned char>> J_minos{
@@ -308,7 +310,7 @@ Tetramino createJ(Board* board){
     return piece;
 }
 
-Tetramino createL(Board* board){
+Tetramino createL(){
     unsigned char _ = mino::EMPTY;
     unsigned char x = mino::L;
     std::vector<std::vector<unsigned char>> L_minos{
@@ -331,7 +333,7 @@ Tetramino createL(Board* board){
     return piece;
 }
 
-Tetramino createO(Board* board){
+Tetramino createO(){
     unsigned char _ = mino::EMPTY;
     unsigned char x = mino::O;
     std::vector<std::vector<unsigned char>> O_minos{
@@ -354,7 +356,7 @@ Tetramino createO(Board* board){
     return piece;
 }
 
-Tetramino createS(Board* board){
+Tetramino createS(){
     unsigned char _ = mino::EMPTY;
     unsigned char x = mino::S;
     std::vector<std::vector<unsigned char>> S_minos{
@@ -377,7 +379,7 @@ Tetramino createS(Board* board){
     return piece;
 }
 
-Tetramino createT(Board* board){
+Tetramino createT(){
     unsigned char _ = mino::EMPTY;
     unsigned char x = mino::T;
     std::vector<std::vector<unsigned char>> T_minos{
@@ -400,7 +402,7 @@ Tetramino createT(Board* board){
     return piece;
 }
 
-Tetramino createZ(Board* board){
+Tetramino createZ(){
     unsigned char _ = mino::EMPTY;
     unsigned char x = mino::Z;
     std::vector<std::vector<unsigned char>> Z_minos{

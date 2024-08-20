@@ -7,20 +7,130 @@ Game::Game(
     float _loop_period_s,
     unsigned int _board_width,
     unsigned int _board_height,
-    unsigned int _tile_size
+    unsigned int _tile_size,
+    unsigned int _shm_size
 ):
     window_width{_window_width},
     window_height{_window_height},
     loop_period_s{_loop_period_s},
     board_width{_board_width},
     board_height{_board_height},
-    tile_size{_tile_size}
+    tile_size{_tile_size},
+    shm_size{_shm_size}
 {}
 
 Game::~Game() {
     delete window;
     delete board;
+    cleanupSharedMemory();
 }
+
+/**
+ * GAME LOGIC
+ */
+
+void Game::incrementDAS(){
+    cur_das_time = std::max(0.0, cur_das_time - GAME_LOOP_PERIOD_ms);
+    if (cur_das_time > 0.0) return;
+    incrementARR();
+}
+
+void Game::incrementARR(){
+    cur_arp_time = std::max(0.0, cur_arp_time - GAME_LOOP_PERIOD_ms);
+
+    if (cur_arp_time > 0.0) return;
+
+    if (keys.left){
+        if(ARR >= 20) cur_piece.slideLeft(board);
+        else cur_piece.moveLeft(board);
+    } else if (keys.right){
+        if(ARR >= 20) cur_piece.slideRight(board);
+        else cur_piece.moveRight(board);
+    }
+    cur_arp_time = ARP;
+}
+
+void Game::incrementGravity(){
+    ++gravity_counter;
+    if (gravity_counter != gravity) return;
+
+    gravity_counter = 0;
+    cur_piece.moveDown(board);
+}
+
+void Game::incrementLockTimer() {
+    std::pair<int, int> pos = cur_piece.getPos();
+    std::vector<std::vector<unsigned char>> shape = cur_piece.getShape();
+    is_empty_space_below = !cur_piece.testShape(board, shape, {pos.first, pos.second - 1});
+
+    if (!is_empty_space_below){
+        resetLockTimer();
+        return;
+    }
+
+    cur_lock_timer = std::max(0.0, cur_lock_timer - GAME_LOOP_PERIOD_ms);
+    hard_lock_timer = std::max(0.0, hard_lock_timer - GAME_LOOP_PERIOD_ms);
+
+    if (cur_lock_timer > 0.0 && hard_lock_timer > 0.0) return;
+
+    placePiece();
+}
+
+void Game::hardDrop(){
+    while(cur_piece.moveDown(board));
+    placePiece();
+}
+
+void Game::placePiece(){
+    resetHardLockTimer();
+    resetLockTimer();
+    // place piece on board
+    for (int y = 0 ; y < cur_piece.getShape().size() ; ++y){
+        for (int x = 0 ; x < cur_piece.getShape()[y].size() ; ++x){
+            if (!cur_piece.isMino(x, y)) continue;
+
+            board->setMino(
+                cur_piece.getPos().first - cur_piece.getOrigin().first + x, 
+                cur_piece.getPos().second - cur_piece.getOrigin().second+ y, 
+                cur_piece.at(x, y));
+        }
+    }
+
+    board->clearRows();
+    newPiece();
+}
+
+void Game::newPiece() {
+    cur_piece = next_queue.pop();
+    if (!cur_piece.testShape(board, cur_piece.getPos())) {
+        status = GameStatus::TOP_OUT;
+    }
+}
+
+void Game::hold(){
+    cur_piece.reset(board);
+    if(held_piece.isEmpty()){
+        held_piece = cur_piece;
+        newPiece();
+    } else {
+        Tetramino temp_piece = cur_piece;
+        cur_piece = held_piece;
+        held_piece = temp_piece;
+    }
+}
+
+void Game::initGameObjects(bool should_init_shm) {
+    if (should_init_shm)
+        initSharedMemory(shm_size);
+    //set up board
+    board = createBoard(board_width, board_height, tile_size);
+
+    //set up pieces
+    next_queue.init();
+    newPiece();
+    held_piece = Tetramino{};
+}
+
 // maybe move to structs with window settings and board settings
 void Game::play() {
     setupText();
@@ -35,8 +145,7 @@ void Game::play() {
     };
     window->setPosition(sf::Vector2i{100, 100});
 
-    //set up board
-    board = createBoard(board_width, board_height, tile_size);
+    initGameObjects();
 
     // clock
     sf::Clock clock;
@@ -56,7 +165,10 @@ void Game::play() {
             while (window->pollEvent(event)) {
                 if (event.type == sf::Event::Closed)
                     window->close();
-                handleInput(event);
+                if (event.type == sf::Event::KeyPressed)
+                    handleKeyPressed(event);
+                if (event.type == sf::Event::KeyReleased)
+                    handleKeyReleased(event);
             }
 
             // update game logic here
@@ -76,38 +188,128 @@ Board* Game::createBoard(unsigned int width, unsigned int height, unsigned int t
     return board;
 }
 
-void Game::handleInput(sf::Event event) {
-    if (event.type == sf::Event::KeyPressed){
-        switch(event.key.code){
-            case sf::Keyboard::Escape:
-                window->close();
-                break;
-            case sf::Keyboard::R:
-                delete board;
-                board = createBoard(board_width, board_height, tile_size);
-                break;
-        }
+void Game::reset() {
+    delete board;
+    board = createBoard(board_width, board_height, tile_size);
+
+    initGameObjects();
+}
+
+void Game::handleKeyPressed(sf::Event event) {
+    if (event.type != sf::Event::KeyPressed) return;
+    switch(event.key.code){
+        case sf::Keyboard::Escape:
+            window->close();
+            break;
+        case sf::Keyboard::R:
+            reset();
+            break;
+        case sf::Keyboard::Left:
+            resetLockTimer();
+            if (!keys.left)
+                cur_piece.moveLeft(board);
+            keys.left = true;
+            break;
+        case sf::Keyboard::Right:
+            resetLockTimer();
+            if (!keys.right)
+                cur_piece.moveRight(board);
+            keys.right = true;
+            break;
+        case sf::Keyboard::C:
+            hold();
+            break;
+        case sf::Keyboard::Down:
+            resetLockTimer();
+            cur_piece.slideDown(board);
+            break;
+        case sf::Keyboard::Space:
+            hardDrop();
+            break;
+        case sf::Keyboard::Z:
+            cur_piece.rotateCCW(board);
+            break;
+        case sf::Keyboard::X:
+            cur_piece.rotateCW(board);
+            break;
+        case sf::Keyboard::A:
+            // TODO: change to actual 180 spin
+            cur_piece.rotateCW(board);
+            cur_piece.rotateCW(board);
     }
-    board->handleInput(event);
+}
+
+void Game::handleKeyReleased(sf::Event event) {
+    if (event.type != sf::Event::KeyReleased) return;
+    
+    switch(event.key.code){
+        case sf::Keyboard::Left:
+            keys.left = false;
+            break;
+        case sf::Keyboard::Right:
+            keys.right = false;
+            break;
+        default:
+            break;
+    }
+    if (!keys.left && !keys.right)
+        cur_das_time = DAS;
+}
+
+void Game::resetLockTimer() {
+    cur_lock_timer = lock_time;
+}
+
+void Game::resetHardLockTimer() {
+    hard_lock_timer = lock_time * hard_lock_factor;
 }
 
 void Game::update() {
+    if(keys.right || keys.left)
+        incrementDAS();
+    else {
+        cur_das_time = DAS;
+        cur_arp_time = ARP;
+    }
+
+    incrementGravity();
+    incrementLockTimer();
+
     board->update();
+
+    if (shm_enabled){
+        writeToSharedMemory();
+    }
 }
 
 void Game::draw() {
-    if (board->status == BoardStatus::TOP_OUT) {
+    if (status == GameStatus::TOP_OUT) {
         // end screen
         drawTopOut();
         window->display();
         return;
     }
-    unsigned int bw = board->getWidth();
-    unsigned int dx{window_width / 2 - bw * tile_size/ 2};
-    unsigned int dy{0};
+    unsigned int b_w = board->getWidth();
+    unsigned int b_h = board->getHeight();
+    unsigned int b_dx = window_width / 2 - b_w * tile_size/ 2;
+    unsigned int b_dy = window_height / 2 - b_h * tile_size / 2;
 
     window->clear(sf::Color::White);
-    board->draw(window, dx, dy);
+
+    board->draw(window, b_dx, b_dy);
+
+    // draw current piece
+    cur_piece.drawOnBoard(board, window, b_dx, b_dy, tile_size);
+
+    // draw held piece
+    int h_dx = b_dx - 10;
+    int h_dy = b_dy;
+    held_piece.draw(window, h_dx, h_dy, tile_size);
+
+    // draw next queue
+    int nq_dx = b_dx + tile_size * (b_w) + 10;
+    int nq_dy = b_dy;
+    next_queue.draw(window, nq_dx, nq_dy, tile_size);
     window->display();
 }
 
@@ -130,4 +332,90 @@ void Game::setupText() {
     top_out_text.setOrigin(bounds.left + bounds.width / 2.f , bounds.top + bounds.height / 2.f);
     top_out_text.setPosition(window_width / 2, window_height / 2);
     top_out_text.setStyle(sf::Text::Regular);
+}
+
+void Game::initSharedMemory(unsigned int _shm_size) {
+    shm_enabled = true;
+    shm_size = _shm_size;
+
+    // Create a shared memory object
+    shmfd = shm_open(SHM_PATH, O_CREAT | O_RDWR, 0666);
+    if (shmfd == -1) {
+        perror("shm_open");
+        exit(EXIT_FAILURE);
+    }
+
+    const int size = shm_size;
+
+    // Set the size of the shared memory object
+    if (ftruncate(shmfd, size) == -1) {
+        perror("ftruncate");
+        exit(EXIT_FAILURE);
+    }
+
+    // Map the shared memory object into the process's address space
+    shm_game = (unsigned char*) mmap(NULL, size, PROT_WRITE, MAP_SHARED, shmfd, 0);
+    if (shm_game == MAP_FAILED) {
+        perror("mmap");
+        exit(EXIT_FAILURE);
+    }
+    memset(shm_game, 0, size);
+}
+
+void Game::cleanupSharedMemory() {
+    if (!shm_enabled) return;
+
+    // Unmap the shared memory
+    if (munmap(shm_game, shm_size) == -1) {
+        perror("munmap");
+        exit(EXIT_FAILURE);
+    }
+
+    // Close the shared memory object
+    if (close(shmfd) == -1) {
+        perror("close");
+        exit(EXIT_FAILURE);
+    }
+}
+
+void Game::writeToSharedMemory(){
+    int width = board->getWidth();
+    int height = board->getHeight();
+    // write board
+    for (int j = 0 ; j < height ; ++j) {
+        for (int i = 0 ; i < width; ++i) {
+            unsigned char cell = board->getMino(i, j);
+            shm_game[i + (height - j - 1) * (width + 1)] = (cell == mino::EMPTY) ? SHM_CELL_EMPTY : SHM_CELL_FULL; 
+        }
+        shm_game[(height - j - 1) * (width + 1) + width] = '\n';
+    }
+
+    // write cur_piece
+    std::vector<std::vector<unsigned char>> cur_piece_shape = cur_piece.getShape();
+    std::pair<int, int> pos = cur_piece.getPos();
+    std::pair<int, int> origin = cur_piece.getOrigin();
+
+    for(int y = 0 ; y < cur_piece_shape.size() ; ++y){
+        for (int x = 0 ; x < cur_piece_shape.size() ; ++x){
+            unsigned char cell = cur_piece.isMino(x, y) ? SHM_CELL_FULL : SHM_CELL_EMPTY;
+            int cell_x = pos.first + x - origin.first;
+            int cell_y = height - pos.second - y - 1 + origin.second;
+
+            if (!cur_piece.isMino(x, y)) continue;
+
+            shm_game[cell_x + cell_y * (width + 1)] = cell;
+        }
+    }
+    
+    // TODO: write hold
+    // std::vector<std::vector<unsigned char>> held_piece_shape = held_piece.getShape();
+    // int shm_pos = (width + 1) * height;
+    // shm_game[shm_pos++] = 'h';
+    // shm_game[shm_pos++] = '\n';
+    // for (int j = held_piece_shape.size() - 1 ; j >= 0 ; --j) {
+    //     for (int i = 0 ; i < held_piece_shape[j].size() ; ++i) {
+    //         shm_game[shm_pos++] = held_piece.isMino(i, j) ? SHM_CELL_FULL : SHM_CELL_EMPTY;
+    //     }
+    //     shm_game[shm_pos++] = '\n';
+    // }
 }

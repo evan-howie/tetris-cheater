@@ -10,10 +10,9 @@ private:
     std::queue<Tetramino> next_bag;
     std::queue<Tetramino> createBag();
     std::queue<Tetramino> asQueue();
-    Board* board;
 public:
     NextQueue();
-    void init(Board* board);
+    void init();
     Tetramino pop();
     void draw(sf::RenderWindow* window, int dx, int dy, unsigned int tile_size, unsigned int width=5);
 };
