@@ -1,25 +1,28 @@
 #include "../includes/game.h"
 #include <iostream>
 
-Game::Game(
-    unsigned int _window_width,
-    unsigned int _window_height,
-    float _loop_period_s,
-    unsigned int _board_width,
-    unsigned int _board_height,
-    unsigned int _tile_size,
-    unsigned int _shm_size
+Game::Game::Game(
+    WindowSettings window_settings,
+    BoardSettings board_settings,
+    GameSettings game_settings,
+    SHMSettings shm_settings
 ):
-    window_width{_window_width},
-    window_height{_window_height},
-    loop_period_s{_loop_period_s},
-    board_width{_board_width},
-    board_height{_board_height},
-    tile_size{_tile_size},
-    shm_size{_shm_size}
+    window_width{window_settings.window_width},
+    window_height{window_settings.window_width},
+    loop_period{game_settings.loop_period},
+    board_width{board_settings.board_width},
+    board_height{board_settings.board_height},
+    tile_size{board_settings.tile_size},
+    shm_size{shm_settings.shm_size},
+    DAS{game_settings.das},
+    ARR{game_settings.arr},
+    ARP{game_settings.arp},
+    SDF{game_settings.sdf},
+    lock_time{game_settings.lock_time},
+    hard_lock_factor{game_settings.hard_lock_factor}
 {}
 
-Game::~Game() {
+Game::Game::~Game() {
     delete window;
     delete board;
     cleanupSharedMemory();
@@ -29,14 +32,14 @@ Game::~Game() {
  * GAME LOGIC
  */
 
-void Game::incrementDAS(){
-    cur_das_time = std::max(0.0, cur_das_time - GAME_LOOP_PERIOD_ms);
+void Game::Game::incrementDAS(){
+    cur_das_time = std::max(0.0, cur_das_time - loop_period);
     if (cur_das_time > 0.0) return;
     incrementARR();
 }
 
-void Game::incrementARR(){
-    cur_arp_time = std::max(0.0, cur_arp_time - GAME_LOOP_PERIOD_ms);
+void Game::Game::incrementARR(){
+    cur_arp_time = std::max(0.0, cur_arp_time - loop_period);
 
     if (cur_arp_time > 0.0) return;
 
@@ -50,7 +53,7 @@ void Game::incrementARR(){
     cur_arp_time = ARP;
 }
 
-void Game::incrementGravity(){
+void Game::Game::incrementGravity(){
     ++gravity_counter;
     if (gravity_counter != gravity) return;
 
@@ -58,7 +61,7 @@ void Game::incrementGravity(){
     cur_piece.moveDown(board);
 }
 
-void Game::incrementLockTimer() {
+void Game::Game::incrementLockTimer() {
     std::pair<int, int> pos = cur_piece.getPos();
     std::vector<std::vector<unsigned char>> shape = cur_piece.getShape();
     is_empty_space_below = !cur_piece.testShape(board, shape, {pos.first, pos.second - 1});
@@ -68,20 +71,20 @@ void Game::incrementLockTimer() {
         return;
     }
 
-    cur_lock_timer = std::max(0.0, cur_lock_timer - GAME_LOOP_PERIOD_ms);
-    hard_lock_timer = std::max(0.0, hard_lock_timer - GAME_LOOP_PERIOD_ms);
+    cur_lock_timer = std::max(0.0, cur_lock_timer - loop_period);
+    hard_lock_timer = std::max(0.0, hard_lock_timer - loop_period);
 
     if (cur_lock_timer > 0.0 && hard_lock_timer > 0.0) return;
 
     placePiece();
 }
 
-void Game::hardDrop(){
+void Game::Game::hardDrop(){
     while(cur_piece.moveDown(board));
     placePiece();
 }
 
-void Game::placePiece(){
+void Game::Game::placePiece(){
     resetHardLockTimer();
     resetLockTimer();
     // place piece on board
@@ -100,14 +103,14 @@ void Game::placePiece(){
     newPiece();
 }
 
-void Game::newPiece() {
+void Game::Game::newPiece() {
     cur_piece = next_queue.pop();
     if (!cur_piece.testShape(board, cur_piece.getPos())) {
         status = GameStatus::TOP_OUT;
     }
 }
 
-void Game::hold(){
+void Game::Game::hold(){
     cur_piece.reset(board);
     if(held_piece.isEmpty()){
         held_piece = cur_piece;
@@ -119,7 +122,7 @@ void Game::hold(){
     }
 }
 
-void Game::initGameObjects(bool should_init_shm) {
+void Game::Game::initGameObjects(bool should_init_shm) {
     if (should_init_shm)
         initSharedMemory(shm_size);
     //set up board
@@ -132,7 +135,7 @@ void Game::initGameObjects(bool should_init_shm) {
 }
 
 // maybe move to structs with window settings and board settings
-void Game::play() {
+void Game::Game::play() {
     setupText();
     // set up window
     sf::ContextSettings settings;
@@ -149,7 +152,7 @@ void Game::play() {
 
     // clock
     sf::Clock clock;
-    const sf::Time loop_period = sf::seconds(loop_period_s);
+    const sf::Time loop_period_time = sf::milliseconds(loop_period);
 
     // main loop
     sf::Time time_since_last = sf::Time::Zero;
@@ -157,8 +160,8 @@ void Game::play() {
         sf::Time dt = clock.restart();
         time_since_last += dt;
 
-        while (time_since_last > loop_period) {
-            time_since_last -= loop_period;
+        while (time_since_last > loop_period_time) {
+            time_since_last -= loop_period_time;
 
             // process events
             sf::Event event;
@@ -182,20 +185,20 @@ void Game::play() {
     }
 }
 
-Board* Game::createBoard(unsigned int width, unsigned int height, unsigned int tile_size) {
-    Board* board = new Board{BOARD_WIDTH, BOARD_HEIGHT, TILE_SIZE};
+Board* Game::Game::createBoard(unsigned int width, unsigned int height, unsigned int tile_size) {
+    Board* board = new Board{board_width, board_height, tile_size};
     board->init();
     return board;
 }
 
-void Game::reset() {
+void Game::Game::reset() {
     delete board;
     board = createBoard(board_width, board_height, tile_size);
 
     initGameObjects();
 }
 
-void Game::handleKeyPressed(sf::Event event) {
+void Game::Game::handleKeyPressed(sf::Event event) {
     if (event.type != sf::Event::KeyPressed) return;
     switch(event.key.code){
         case sf::Keyboard::Escape:
@@ -239,7 +242,7 @@ void Game::handleKeyPressed(sf::Event event) {
     }
 }
 
-void Game::handleKeyReleased(sf::Event event) {
+void Game::Game::handleKeyReleased(sf::Event event) {
     if (event.type != sf::Event::KeyReleased) return;
     
     switch(event.key.code){
@@ -256,15 +259,15 @@ void Game::handleKeyReleased(sf::Event event) {
         cur_das_time = DAS;
 }
 
-void Game::resetLockTimer() {
+void Game::Game::resetLockTimer() {
     cur_lock_timer = lock_time;
 }
 
-void Game::resetHardLockTimer() {
+void Game::Game::resetHardLockTimer() {
     hard_lock_timer = lock_time * hard_lock_factor;
 }
 
-void Game::update() {
+void Game::Game::update() {
     if(keys.right || keys.left)
         incrementDAS();
     else {
@@ -282,17 +285,15 @@ void Game::update() {
     }
 }
 
-void Game::draw() {
+void Game::Game::draw() {
     if (status == GameStatus::TOP_OUT) {
         // end screen
         drawTopOut();
         window->display();
         return;
     }
-    unsigned int b_w = board->getWidth();
-    unsigned int b_h = board->getHeight();
-    unsigned int b_dx = window_width / 2 - b_w * tile_size/ 2;
-    unsigned int b_dy = window_height / 2 - b_h * tile_size / 2;
+    unsigned int b_dx = window_width / 2 - board_width * tile_size/ 2;
+    unsigned int b_dy = window_height / 2 - board_height * tile_size / 2;
 
     window->clear(sf::Color::White);
 
@@ -307,17 +308,17 @@ void Game::draw() {
     held_piece.draw(window, h_dx, h_dy, tile_size);
 
     // draw next queue
-    int nq_dx = b_dx + tile_size * (b_w) + 10;
+    int nq_dx = b_dx + tile_size * (board_width) + 10;
     int nq_dy = b_dy;
     next_queue.draw(window, nq_dx, nq_dy, tile_size);
     window->display();
 }
 
-void Game::drawTopOut() {
+void Game::Game::drawTopOut() {
     window->draw(top_out_text);
 }
 
-void Game::setupText() {
+void Game::Game::setupText() {
     if (!top_out_text_font.loadFromFile("../fonts/open-sans-variable.ttf")){ // maybe move to env something
         exit(1);
     }
@@ -334,12 +335,12 @@ void Game::setupText() {
     top_out_text.setStyle(sf::Text::Regular);
 }
 
-void Game::initSharedMemory(unsigned int _shm_size) {
+void Game::Game::initSharedMemory(unsigned int _shm_size) {
     shm_enabled = true;
     shm_size = _shm_size;
 
     // Create a shared memory object
-    shmfd = shm_open(SHM_PATH, O_CREAT | O_RDWR, 0666);
+    shmfd = shm_open(shm_path, O_CREAT | O_RDWR, 0666);
     if (shmfd == -1) {
         perror("shm_open");
         exit(EXIT_FAILURE);
@@ -362,7 +363,7 @@ void Game::initSharedMemory(unsigned int _shm_size) {
     memset(shm_game, 0, size);
 }
 
-void Game::cleanupSharedMemory() {
+void Game::Game::cleanupSharedMemory() {
     if (!shm_enabled) return;
 
     // Unmap the shared memory
@@ -378,14 +379,14 @@ void Game::cleanupSharedMemory() {
     }
 }
 
-void Game::writeToSharedMemory(){
+void Game::Game::writeToSharedMemory(){
     int width = board->getWidth();
     int height = board->getHeight();
     // write board
     for (int j = 0 ; j < height ; ++j) {
         for (int i = 0 ; i < width; ++i) {
             unsigned char cell = board->getMino(i, j);
-            shm_game[i + (height - j - 1) * (width + 1)] = (cell == mino::EMPTY) ? SHM_CELL_EMPTY : SHM_CELL_FULL; 
+            shm_game[i + (height - j - 1) * (width + 1)] = (cell == mino::EMPTY) ? shm_cell_empty : shm_cell_full; 
         }
         shm_game[(height - j - 1) * (width + 1) + width] = '\n';
     }
@@ -397,7 +398,7 @@ void Game::writeToSharedMemory(){
 
     for(int y = 0 ; y < cur_piece_shape.size() ; ++y){
         for (int x = 0 ; x < cur_piece_shape.size() ; ++x){
-            unsigned char cell = cur_piece.isMino(x, y) ? SHM_CELL_FULL : SHM_CELL_EMPTY;
+            unsigned char cell = cur_piece.isMino(x, y) ? shm_cell_full : shm_cell_empty;
             int cell_x = pos.first + x - origin.first;
             int cell_y = height - pos.second - y - 1 + origin.second;
 

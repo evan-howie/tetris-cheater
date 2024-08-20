@@ -37,14 +37,39 @@ void reader(Board* board){
 
 int main(int argc, char* argv[]){
     // handle command line arguments (or .env) for future
-    Game game{
+    Game::WindowSettings window_settings{
         WINDOW_WIDTH,
-        WINDOW_HEIGHT,
-        GAME_LOOP_PERIOD_s,
+        WINDOW_HEIGHT
+    };
+
+    Game::GameSettings game_settings {
+        GAME_LOOP_PERIOD_ms,
+        DEFAULT_DAS,
+        DEFAULT_ARR,
+        DEFAULT_ARP,
+        DEFAULT_SDF,
+        DEFAULT_LOCK_TIME,
+        DEFAULT_HARD_LOCK_FACTOR
+    };
+
+    Game::BoardSettings board_settings {
         BOARD_WIDTH,
         BOARD_HEIGHT,
-        TILE_SIZE,
-        SHM_SIZE
+        TILE_SIZE
+    };
+
+    Game::SHMSettings shm_settings {
+        SHM_SIZE,
+        SHM_PATH,
+        SHM_CELL_FULL,
+        SHM_CELL_EMPTY
+    };
+
+    Game::Game game{
+        window_settings,
+        board_settings,
+        game_settings,
+        shm_settings
     };
     game.play();
 
