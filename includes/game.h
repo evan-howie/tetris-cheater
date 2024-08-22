@@ -48,6 +48,8 @@ namespace Game {
         double hard_lock_factor;
     };
 
+    const sf::Color BackgroundColor{0x010101ff};
+
     class Game {
     private:
         enum GameStatus status = GameStatus::PLAYING;

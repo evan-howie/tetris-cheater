@@ -199,6 +199,7 @@ void Game::Game::reset() {
     board = createBoard(board_width, board_height, tile_size);
 
     initGameObjects();
+    status = GameStatus::PLAYING;
 }
 
 void Game::Game::handleKeyPressed(sf::Event event) {
@@ -298,7 +299,7 @@ void Game::Game::draw() {
     unsigned int b_dx = window_width / 2 - board_width * tile_size/ 2;
     unsigned int b_dy = window_height / 2 - board_height * tile_size / 2;
 
-    window->clear(sf::Color::White);
+    window->clear(BackgroundColor);
 
     board->draw(window, b_dx, b_dy);
 

@@ -67,7 +67,7 @@ bool Board::inBounds(int x, int y){
 void Board::draw(sf::RenderWindow* window, unsigned int board_x, unsigned int board_y){
     // draw board cells
     sf::RectangleShape rect(sf::Vector2f(tile_size, tile_size));
-    rect.setOutlineColor(sf::Color::Black);
+    rect.setOutlineColor(mino::OutlineColor);
     rect.setOutlineThickness(1);
     for (int x = 0 ; x < width ; ++x){
         for (int y = 0 ; y < height ; ++y){

@@ -21,16 +21,18 @@ namespace mino {
 
     // Create a map to match enum values to colors
     const std::unordered_map<unsigned char, sf::Color> color_map = {
-        {I, sf::Color::Cyan},
-        {J, sf::Color::Blue},
-        {L, sf::Color{255, 165, 0}},
-        {O, sf::Color::Yellow},
-        {S, sf::Color::Green},
-        {T, sf::Color::Magenta},
-        {Z, sf::Color::Red},
+        {I, sf::Color{0x66ccccff}},
+        {J, sf::Color{0x6666ccff}},
+        {L, sf::Color{0xffb266ff}},
+        {O, sf::Color{0xffffccff}},
+        {S, sf::Color{0x99cc99ff}},
+        {T, sf::Color{0xb399ffff}},
+        {Z, sf::Color{0xff6666ff}},
         {EMPTY, sf::Color{0x1b1b1bff}},  // Empty cells might be black or transparent
         {SHADOW, sf::Color{0x2b2b2bff}}
     };
+
+    const sf::Color OutlineColor = sf::Color{0x00000000};
 }
 
 #endif // MINO_COLORS_H

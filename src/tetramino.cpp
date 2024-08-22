@@ -230,7 +230,7 @@ void Tetramino::drawOnBoard(Board* board, sf::RenderWindow* window, int board_x,
 
 void Tetramino::draw(sf::RenderWindow* window, int dx, int dy, unsigned int tile_size){
     sf::RectangleShape rect(sf::Vector2f(tile_size, tile_size));
-    rect.setOutlineColor(sf::Color::Black);
+    rect.setOutlineColor(mino::OutlineColor);
     rect.setOutlineThickness(1);
 
     for(int y = 0 ; y < shape.size() ; ++y){
@@ -249,7 +249,7 @@ void Tetramino::draw(sf::RenderWindow* window, int dx, int dy, unsigned int tile
 
 void Tetramino::draw(sf::RenderWindow* window, int dx, int dy, unsigned int tile_size, sf::Color color){
     sf::RectangleShape rect(sf::Vector2f(tile_size, tile_size));
-    rect.setOutlineColor(sf::Color::Black);
+    rect.setOutlineColor(mino::OutlineColor);
     rect.setOutlineThickness(1);
 
     for(int y = 0 ; y < shape.size() ; ++y){
