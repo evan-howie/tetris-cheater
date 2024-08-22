@@ -14,3 +14,12 @@ HeldTetramino& HeldTetramino::operator=(const Tetramino& other) {
         }
         return *this;
 }
+
+void HeldTetramino::setHasHeld(bool _has_held){
+    has_held = _has_held;
+}
+
+bool HeldTetramino::getHasHeld(){
+    return has_held;
+}
+

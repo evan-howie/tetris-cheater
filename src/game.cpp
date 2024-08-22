@@ -102,6 +102,7 @@ void Game::Game::placePiece(){
 
 void Game::Game::newPiece() {
     cur_piece = next_queue.pop();
+    held_piece.setHasHeld(false);
     
     cur_piece.init(board);
     if (!cur_piece.testShape(board, cur_piece.getPos())) {
@@ -110,6 +111,8 @@ void Game::Game::newPiece() {
 }
 
 void Game::Game::hold(){
+    if (held_piece.getHasHeld()) return;
+
     cur_piece.reset(board);
     if(held_piece.isEmpty()){
         held_piece = cur_piece;
@@ -120,6 +123,8 @@ void Game::Game::hold(){
         held_piece = temp_piece;
     }
     cur_piece.reset(board);
+
+    held_piece.setHasHeld(true);
 }
 
 void Game::Game::initGameObjects() {
