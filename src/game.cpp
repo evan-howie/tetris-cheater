@@ -105,6 +105,8 @@ void Game::Game::placePiece(){
 
 void Game::Game::newPiece() {
     cur_piece = next_queue.pop();
+    
+    cur_piece.init(board);
     if (!cur_piece.testShape(board, cur_piece.getPos())) {
         status = GameStatus::TOP_OUT;
     }
@@ -120,6 +122,7 @@ void Game::Game::hold(){
         cur_piece = held_piece;
         held_piece = temp_piece;
     }
+    cur_piece.reset(board);
 }
 
 void Game::Game::initGameObjects(bool should_init_shm) {
@@ -300,6 +303,7 @@ void Game::Game::draw() {
     board->draw(window, b_dx, b_dy);
 
     // draw current piece
+    cur_piece.drawShadow(board, window, b_dx, b_dy, tile_size);
     cur_piece.drawOnBoard(board, window, b_dx, b_dy, tile_size);
 
     // draw held piece

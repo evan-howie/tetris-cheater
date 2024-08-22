@@ -11,6 +11,7 @@ class Tetramino {
 private:
     std::pair<int, int> offset{0, 0};
     std::pair<int, int> pos;
+    int shadow_y;
     std::pair<int, int> origin{1, 1};
     char rotation{0};
 
@@ -23,6 +24,8 @@ private:
         std::pair<int, int> pos{4, 21};
         int rotation{0};
     } defaultPosition;
+
+    void updateShadow(Board* board);
 
 public:
     Tetramino();
@@ -54,8 +57,11 @@ public:
     std::tuple<int, int, int, int> getBounds();
     std::pair<double, double> getCenter();
 
+    void init(Board* board);
+    void drawShadow(Board* board, sf::RenderWindow* window, int board_x, int board_y, unsigned int tile_size);
     void drawOnBoard(Board* board, sf::RenderWindow* window, int board_x, int board_y, unsigned int tile_size);
     void draw(sf::RenderWindow* window, int dx, int dy, unsigned int tile_size);
+    void draw(sf::RenderWindow* window, int dx, int dy, unsigned int tile_size, sf::Color color);
 };
 
 Tetramino createI();

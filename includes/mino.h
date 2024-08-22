@@ -13,6 +13,7 @@ namespace mino {
     const unsigned char T = 5;
     const unsigned char Z = 6;
     const unsigned char EMPTY=0x80;
+    const unsigned char SHADOW=0x81;
 
     inline bool isMino(unsigned char m){
         return (m & mino::EMPTY) == 0;
@@ -27,7 +28,8 @@ namespace mino {
         {S, sf::Color::Green},
         {T, sf::Color::Magenta},
         {Z, sf::Color::Red},
-        {EMPTY, sf::Color{0x1b1b1bff}}  // Empty cells might be black or transparent
+        {EMPTY, sf::Color{0x1b1b1bff}},  // Empty cells might be black or transparent
+        {SHADOW, sf::Color{0x2b2b2bff}}
     };
 }
 
