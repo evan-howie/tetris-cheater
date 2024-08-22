@@ -4,8 +4,7 @@
 Game::Game::Game(
     WindowSettings window_settings,
     BoardSettings board_settings,
-    GameSettings game_settings,
-    SHMSettings shm_settings
+    GameSettings game_settings
 ):
     window_width{window_settings.window_width},
     window_height{window_settings.window_width},
@@ -13,7 +12,6 @@ Game::Game::Game(
     board_width{board_settings.board_width},
     board_height{board_settings.board_height},
     tile_size{board_settings.tile_size},
-    shm_size{shm_settings.shm_size},
     DAS{game_settings.das},
     ARR{game_settings.arr},
     ARP{game_settings.arp},
@@ -25,7 +23,6 @@ Game::Game::Game(
 Game::Game::~Game() {
     delete window;
     delete board;
-    cleanupSharedMemory();
 }
 
 /**
@@ -125,9 +122,7 @@ void Game::Game::hold(){
     cur_piece.reset(board);
 }
 
-void Game::Game::initGameObjects(bool should_init_shm) {
-    if (should_init_shm)
-        initSharedMemory(shm_size);
+void Game::Game::initGameObjects() {
     //set up board
     board = createBoard(board_width, board_height, tile_size);
 
@@ -283,10 +278,6 @@ void Game::Game::update() {
     incrementLockTimer();
 
     board->update();
-
-    if (shm_enabled){
-        writeToSharedMemory();
-    }
 }
 
 void Game::Game::draw() {
@@ -338,90 +329,4 @@ void Game::Game::setupText() {
     top_out_text.setOrigin(bounds.left + bounds.width / 2.f , bounds.top + bounds.height / 2.f);
     top_out_text.setPosition(window_width / 2, window_height / 2);
     top_out_text.setStyle(sf::Text::Regular);
-}
-
-void Game::Game::initSharedMemory(unsigned int _shm_size) {
-    shm_enabled = true;
-    shm_size = _shm_size;
-
-    // Create a shared memory object
-    shmfd = shm_open(shm_path, O_CREAT | O_RDWR, 0666);
-    if (shmfd == -1) {
-        perror("shm_open");
-        exit(EXIT_FAILURE);
-    }
-
-    const int size = shm_size;
-
-    // Set the size of the shared memory object
-    if (ftruncate(shmfd, size) == -1) {
-        perror("ftruncate");
-        exit(EXIT_FAILURE);
-    }
-
-    // Map the shared memory object into the process's address space
-    shm_game = (unsigned char*) mmap(NULL, size, PROT_WRITE, MAP_SHARED, shmfd, 0);
-    if (shm_game == MAP_FAILED) {
-        perror("mmap");
-        exit(EXIT_FAILURE);
-    }
-    memset(shm_game, 0, size);
-}
-
-void Game::Game::cleanupSharedMemory() {
-    if (!shm_enabled) return;
-
-    // Unmap the shared memory
-    if (munmap(shm_game, shm_size) == -1) {
-        perror("munmap");
-        exit(EXIT_FAILURE);
-    }
-
-    // Close the shared memory object
-    if (close(shmfd) == -1) {
-        perror("close");
-        exit(EXIT_FAILURE);
-    }
-}
-
-void Game::Game::writeToSharedMemory(){
-    int width = board->getWidth();
-    int height = board->getHeight();
-    // write board
-    for (int j = 0 ; j < height ; ++j) {
-        for (int i = 0 ; i < width; ++i) {
-            unsigned char cell = board->getMino(i, j);
-            shm_game[i + (height - j - 1) * (width + 1)] = (cell == mino::EMPTY) ? shm_cell_empty : shm_cell_full; 
-        }
-        shm_game[(height - j - 1) * (width + 1) + width] = '\n';
-    }
-
-    // write cur_piece
-    std::vector<std::vector<unsigned char>> cur_piece_shape = cur_piece.getShape();
-    std::pair<int, int> pos = cur_piece.getPos();
-    std::pair<int, int> origin = cur_piece.getOrigin();
-
-    for(int y = 0 ; y < cur_piece_shape.size() ; ++y){
-        for (int x = 0 ; x < cur_piece_shape.size() ; ++x){
-            unsigned char cell = cur_piece.isMino(x, y) ? shm_cell_full : shm_cell_empty;
-            int cell_x = pos.first + x - origin.first;
-            int cell_y = height - pos.second - y - 1 + origin.second;
-
-            if (!cur_piece.isMino(x, y)) continue;
-
-            shm_game[cell_x + cell_y * (width + 1)] = cell;
-        }
-    }
-    
-    // TODO: write hold
-    // std::vector<std::vector<unsigned char>> held_piece_shape = held_piece.getShape();
-    // int shm_pos = (width + 1) * height;
-    // shm_game[shm_pos++] = 'h';
-    // shm_game[shm_pos++] = '\n';
-    // for (int j = held_piece_shape.size() - 1 ; j >= 0 ; --j) {
-    //     for (int i = 0 ; i < held_piece_shape[j].size() ; ++i) {
-    //         shm_game[shm_pos++] = held_piece.isMino(i, j) ? SHM_CELL_FULL : SHM_CELL_EMPTY;
-    //     }
-    //     shm_game[shm_pos++] = '\n';
-    // }
 }

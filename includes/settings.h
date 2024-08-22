@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 
 #define WINDOW_WIDTH 700
 #define WINDOW_HEIGHT 700
@@ -16,8 +17,3 @@
 #define DEFAULT_SDF -1 
 #define DEFAULT_LOCK_TIME 1000
 #define DEFAULT_HARD_LOCK_FACTOR 5
-
-#define SHM_PATH "/tpp_shared_mem"
-#define SHM_SIZE 1024
-#define SHM_CELL_EMPTY '_'
-#define SHM_CELL_FULL 'x'

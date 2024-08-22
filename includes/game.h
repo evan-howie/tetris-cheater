@@ -1,11 +1,6 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include <sys/mman.h>
-#include <sys/stat.h>        /* For mode constants */
-#include <fcntl.h>           /* For O_* constants */
-#include <unistd.h>
-#include <cstring>           /* For memset */
 #include <queue>
 #include "board.h"
 #include "held.h"
@@ -29,13 +24,6 @@ namespace Game {
         unsigned int board_width;
         unsigned int board_height;
         unsigned int tile_size;
-    };
-
-    struct SHMSettings {
-        unsigned int shm_size;
-        char* shm_path;
-        unsigned char shm_cell_full;
-        unsigned char shm_cell_empty;
     };
 
     struct GameSettings {
@@ -116,18 +104,7 @@ namespace Game {
         void resetLockTimer();
         void resetHardLockTimer();
 
-        bool shm_enabled = false;
-        int shmfd;
-        unsigned char* shm_game;
-        unsigned int shm_size;
-        char* shm_path;
-        unsigned char shm_cell_full;
-        unsigned char shm_cell_empty;
-        void writeToSharedMemory();
-        void initSharedMemory(unsigned int _shm_size);
-        void cleanupSharedMemory();
-
-        void initGameObjects(bool should_init_shm=false);
+        void initGameObjects();
         void update();
         void draw();
         void drawTopOut();
@@ -139,8 +116,7 @@ namespace Game {
         Game(
             WindowSettings window_settings,
             BoardSettings board_settings,
-            GameSettings game_settings,
-            SHMSettings shm_settings
+            GameSettings game_settings
         );
         ~Game();
 
